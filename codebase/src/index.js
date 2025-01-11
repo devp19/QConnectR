@@ -12,7 +12,7 @@ root.render(
   <React.StrictMode>
     <Auth0Provider
       domain="dev-7t302exjqhg6x04w.us.auth0.com"
-      clientId="kcpmUlIuokOuZq8eJ2rbWuWFkrg3yAEz"  // Add your new SPA client ID here
+      clientId="kcpmUlIuokOuZq8eJ2rbWuWFkrg3yAEz"  // Replace with your SPA client ID
       authorizationParams={{
         redirect_uri: window.location.origin,
         scope: "openid profile email"
