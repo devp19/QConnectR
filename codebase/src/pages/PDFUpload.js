@@ -1,260 +1,147 @@
-import { useState } from 'react';
+// src/components/PDFUpload.js
+import React, { useState } from 'react';
 import { s3 } from '../awsConfig';
-import { doc, updateDoc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import Spinner from 'react-bootstrap/Spinner';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import Select from 'react-select';
-
-const MAX_FILE_SIZE_MB = 5;
-const MAX_UPLOADS_PER_DAY = 10;
-
-const interestOptions = [
-  { value: 'Technology', label: 'Technology' },
-  { value: 'Healthcare', label: 'Healthcare' },
-  { value: 'Finance', label: 'Finance' },
-  { value: 'Construction', label: 'Construction' },
-  { value: 'Engineering', label: 'Engineering' },
-];
 
 const PDFUpload = ({ user, onUploadComplete }) => {
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [showErrorModal, setErrorModal] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        setErrorMessage(`File size exceeds ${MAX_FILE_SIZE_MB} MB limit.`);
-        setErrorModal(true);
-        return;
-      }
-      setSelectedFile(file);
-      setErrorMessage('');
-      setShowModal(true);
+  const handleUpload = async (event) => {
+    const file = event.target.files[0];
+    
+    // Debug logs
+    console.log('Upload attempted with:', {
+      file: file,
+      user: user,
+      userId: user?.sub
+    });
+
+    // Validation checks
+    if (!file) {
+      setError('Please select a file');
+      return;
     }
-  };
 
-  const handleUpload = async () => {
-    if (!selectedFile || !user || !title.trim()) return;
+    if (!user?.sub) {
+      setError('User not authenticated');
+      console.error('No user ID available:', user);
+      return;
+    }
 
-    setLoading(true);
-    setShowModal(false);
-    setErrorModal(false);
+    setUploading(true);
+    setError(null);
 
     try {
-      const userDocRef = doc(db, 'users', user.uid);
-      const docSnapshot = await getDoc(userDocRef);
-      const currentPdfs = docSnapshot.exists() ? docSnapshot.data().pdfs || [] : [];
-
-      const today = new Date().toISOString().split('T')[0];
-      const todaysUploads = currentPdfs.filter(pdf => pdf.uploadDate.startsWith(today));
-      
-      if (todaysUploads.length >= MAX_UPLOADS_PER_DAY) {
-        setLoading(false);
-        setErrorMessage(`You have reached the daily limit of ${MAX_UPLOADS_PER_DAY} uploads.`);
-        setErrorModal(true);
-        return;
+      // Validate file type
+      if (!file.type.includes('pdf')) {
+        throw new Error('Only PDF files are allowed');
       }
-      setErrorModal(false);
-      setErrorMessage('')
+
+      // Validate file size (e.g., 10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('File size must be less than 10MB');
+      }
+
+      // Create unique filename
+      const fileName = `pdfs/${user.sub}/${Date.now()}-${file.name}`;
+
+      // Upload to S3
       const params = {
         Bucket: 'resdex-bucket',
-        Key: `pdfs/${user.uid}/${selectedFile.name}`,
-        Body: selectedFile,
-        ContentType: 'application/pdf',
+        Key: fileName,
+        Body: file,
+        ContentType: file.type
       };
 
-      const options = { partSize: 5 * 1024 * 1024, queueSize: 1 };
-      const data = await s3.upload(params, options).promise();
+      console.log('Uploading to S3 with params:', params);
 
+      const { Location } = await s3.upload(params).promise();
+      console.log('S3 upload successful:', Location);
+
+      // Get existing user document
+      const userDocRef = doc(db, 'users', user.sub);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        throw new Error('User document not found in Firestore');
+      }
+
+      // Prepare PDF metadata
       const pdfData = {
-        url: data.Location,
-        title: title,
-        description: description,
+        url: Location,
+        title: file.name.replace('.pdf', ''),
+        description: '',
         uploadDate: new Date().toISOString(),
-        topics: selectedTopics.map(topic => topic.value),
+        topics: []
       };
 
-      if (!docSnapshot.exists()) {
-        await setDoc(userDocRef, { pdfs: [pdfData] });
-      } else {
-        await updateDoc(userDocRef, { pdfs: arrayUnion(pdfData) });
-      }
+      // Update Firestore
+      await updateDoc(userDocRef, {
+        pdfs: arrayUnion(pdfData)
+      });
 
+      console.log('Firestore update successful');
+
+      // Clear input
+      event.target.value = '';
+
+      // Callback
       if (onUploadComplete) {
-        onUploadComplete(user.uid);
+        onUploadComplete();
       }
 
-      setTitle('');
-      setDescription('');
-      setSelectedFile(null);
-      setErrorMessage('');
-      setSelectedTopics([]);
-      window.location.reload();
     } catch (error) {
-      console.error('Error uploading PDF: ', error);
-      setErrorMessage('Failed to upload. Please try again.');
+      console.error('Upload error:', error);
+      setError(error.message || 'Failed to upload PDF');
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
-  };
-
-  const styles = {
-    loadingOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      zIndex: 1000,
-    },
-    uploadArea: {
-      cursor: 'pointer',
-      borderRadius: '5px',
-      textAlign: 'center',
-    }
-  };
-
-  const customStyles = {
-    option: (provided, state) => ({
-      ...provided,
-      color: state.isSelected ? 'white' : 'black',
-      backgroundColor: state.isSelected ? 'rgba(189,197,209,.3)' : 'white',
-      '&:hover': {
-        backgroundColor: 'rgba(189,197,209,.3)',
-      },
-    }),
-    multiValue: (provided) => ({
-      ...provided,
-      backgroundColor: 'black',
-      padding: '5px',
-      borderRadius: '5px'
-    }),
-    multiValueLabel: (provided) => ({
-      ...provided,
-      color: 'white',
-    }),
-    multiValueRemove: (provided) => ({
-      ...provided,
-      color: 'white',
-      ':hover': {
-        backgroundColor: 'black',
-        color: 'white',
-      },
-    }),
   };
 
   return (
     <div>
+      <button className='custom' onClick={() => document.getElementById('pdfInput').click()}>
+        {uploading ? 'Uploading...' : 'Upload Research'}
+      </button>
       <input
         id="pdfInput"
         type="file"
+        accept="application/pdf"
+        onChange={handleUpload}
         style={{ display: 'none' }}
-        accept=".pdf"
-        onChange={handleFileChange}
+        disabled={uploading}
       />
-      <div
-        style={{padding: '10px'}}
-        onClick={() => document.getElementById('pdfInput').click()}
-      >
-        <button className='custom-edit'> 
-          <svg style={{marginRight: '14px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-file-earmark-plus-fill" viewBox="0 0 16 16">
-            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M8.5 7v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 1 0"/>
-          </svg>
-          Upload Research
-        </button>
-      </div>
-
-      <Modal show={showModal} className='box' onHide={() => setShowModal(false)}>
-        <Modal.Header style={{background: '#e5e3df', borderBottom: '1px solid white'}} closeButton>
-          <Modal.Title style={{color: 'black'}}>Document Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label style={{color: 'black'}}>Title</Form.Label>
-              <Form.Control
-                maxLength="50"
-                type="text"
-                placeholder="Enter document title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3 pt-3">
-              <Form.Label style={{color: 'black'}}>Description</Form.Label>
-              <Form.Control
-                maxLength="300"
-                as="textarea"
-                rows={3}
-                placeholder="Enter document description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3 pt-3">
-              <Form.Label style={{color: 'black'}}>Relevant Topics</Form.Label>
-              <Select
-                isMulti
-                name="topics"
-                options={interestOptions}
-                className="basic-multi-select"
-                classNamePrefix="select"
-                value={selectedTopics}
-                onChange={(selected) => {
-                  if (selected.length <= 3) {
-                    setSelectedTopics(selected);
-                  }
-                }}
-                isOptionDisabled={() => selectedTopics.length >= 3}
-                placeholder="Select up to 3 topics"
-                styles={customStyles}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-          <button className="custom-view" onClick={() => setShowModal(false)}>
-            Cancel
-          </button>
-          <button className="custom-view" onClick={handleUpload} disabled={!title.trim()}>
-            Upload
-          </button>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal show={showErrorModal} onHide={() => setErrorModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title className='title'> Error Uploading Document </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="custom border" onClick={() =>  {setErrorModal(false); window.location.reload();}}>
-            Close
-          </button>
-        </Modal.Footer>
-      </Modal>
-
-      {loading && (
-        <div style={styles.loadingOverlay}>
-          <Spinner animation="border" variant="light" />
+      {error && (
+        <div style={{
+          color: 'red',
+          marginTop: '10px',
+          fontSize: '14px',
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          zIndex: 1000
+        }}>
+          {error}
+        </div>
+      )}
+      {uploading && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          zIndex: 1000
+        }}>
+          Uploading PDF...
         </div>
       )}
     </div>
