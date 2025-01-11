@@ -6,6 +6,8 @@ import Logo from '../images/index.png';
 import { Form, Button } from 'react-bootstrap';
 import { db } from '../firebaseConfig';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import config from '../config/config';  // Add this import
+
 
 const Signup = () => {
   const navigate = useNavigate();
