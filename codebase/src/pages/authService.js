@@ -1,60 +1,43 @@
 // src/authService.js
-
-import auth0 from 'auth0-js';
-import { db } from '../firebaseConfig'; // Ensure you have Firebase configured
+import { db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
-const auth0Client = new auth0.WebAuth({
-  domain: process.env.REACT_APP_AUTH0_DOMAIN,
-  clientID: process.env.REACT_APP_AUTH0_CLIENT_ID,
-  redirectUri: window.location.origin,
-  responseType: 'token id_token',
-  scope: 'openid profile email',
-});
-
-export const login = () => {
-  auth0Client.authorize();
+// Add debounce function to prevent rapid navigation
+let navigationTimeout = null;
+const debounceNavigation = (navigate, path) => {
+  if (navigationTimeout) {
+    clearTimeout(navigationTimeout);
+  }
+  navigationTimeout = setTimeout(() => {
+    navigate(path);
+  }, 100);
 };
 
-export const handleAuthentication = async (navigate) => {
-  auth0Client.parseHash(async (err, authResult) => {
-    if (authResult && authResult.accessToken && authResult.idToken) {
-      setSession(authResult);
+export const handleAuthentication = async (user, isAuthenticated, navigate) => {
+  if (isAuthenticated && user) {
+    try {
+      // Extract user ID from Auth0 user
+      const userId = user.sub;
+      console.log('Authenticating user:', userId);
 
-      // Extract user ID from authResult
-      const userId = authResult.idTokenPayload.sub;
+      // Fetch user data from Firestore
+      const userDocRef = doc(db, 'users', userId);
+      const userDocSnap = await getDoc(userDocRef);
 
-      try {
-        // Fetch user data from Firestore
-        const userDocRef = doc(db, 'users', userId);
-        const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const displayName = userData.displayName;
 
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          const displayName = userData.displayName;
-
-          console.log('User signed in successfully');
-          navigate(`/profile/${displayName}`); // Navigate to the user's profile page
-        } else {
-          console.error('No user data found in Firestore');
-          navigate('/'); // Redirect to home or error page
-        }
-      } catch (error) {
-        console.error('Error fetching user data from Firestore:', error);
-        navigate('/'); // Redirect to home or error page
+        console.log('User signed in successfully:', displayName);
+        // Use debounced navigation
+        debounceNavigation(navigate, `/profile/${displayName}`);
+      } else {
+        console.error('No user data found in Firestore');
+        debounceNavigation(navigate, '/');
       }
-    } else if (err) {
-      console.error('Error during authentication:', err);
-      navigate('/'); // Optionally redirect to home or error page
+    } catch (error) {
+      console.error('Error fetching user data from Firestore:', error);
+      debounceNavigation(navigate, '/');
     }
-  });
-};
-
-const setSession = (authResult) => {
-  const expiresAt = JSON.stringify(
-    authResult.expiresIn * 1000 + new Date().getTime()
-  );
-  localStorage.setItem('accessToken', authResult.accessToken);
-  localStorage.setItem('idToken', authResult.idToken);
-  localStorage.setItem('expiresAt', expiresAt);
+  }
 };

@@ -1,4 +1,4 @@
-// index.js
+// src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -7,16 +7,17 @@ import reportWebVitals from './reportWebVitals';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { BrowserRouter } from 'react-router-dom';
 
-const domain = 'dev-7t302exjqhg6x04w.us.auth0.com';
-const clientId = 'iU7B8cMVVWKZKEibqOVj84yedzVRmyml';
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Auth0Provider
-      domain={domain}
-      clientId={clientId}
-      redirectUri={window.location.origin}
+      domain="dev-7t302exjqhg6x04w.us.auth0.com"
+      clientId="kcpmUlIuokOuZq8eJ2rbWuWFkrg3yAEz"  // Add your new SPA client ID here
+      authorizationParams={{
+        redirect_uri: window.location.origin,
+        scope: "openid profile email"
+      }}
+      cacheLocation="localstorage"
     >
       <BrowserRouter>
         <App />

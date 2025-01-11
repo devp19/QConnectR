@@ -1,18 +1,13 @@
-import React, { useEffect } from 'react';
+// src/pages/AuthWrapper.js
+import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useNavigate } from 'react-router-dom';
 
 const AuthWrapper = ({ children }) => {
-  const { isAuthenticated, user, isLoading } = useAuth0();
-  const navigate = useNavigate();
+  const { isLoading } = useAuth0();
 
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      // Navigate to the user's profile page
-      const username = user.nickname || user.email.split('@')[0];
-      navigate(`/profile/${username}`);
-    }
-  }, [isAuthenticated, isLoading, user, navigate]);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return <>{children}</>;
 };
