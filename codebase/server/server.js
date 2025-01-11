@@ -6,15 +6,18 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const app = express();
 
+// Middleware
 app.use(express.json());
 
-// Configure CORS options based on environment
+// CORS Configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://qonnectr.vercel.app']  // Your Vercel frontend URL
-    : ['http://localhost:3000'],
+  origin: [
+    'https://qonnectr.vercel.app',    // Production frontend
+    'http://localhost:3001',          // Local development
+    'http://localhost:3000'           // Alternative local port
+  ],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -23,13 +26,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Initialize Firebase Admin SDK
-// For production, we'll use environment variables instead of a local file
-let serviceAccount;
-if (process.env.NODE_ENV === 'production') {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-} else {
-  serviceAccount = require('./secrets/connectq-e3fb5-firebase-adminsdk-czm27-593590f7d1.json');
-}
+const serviceAccount = require('./secrets/connectq-e3fb5-firebase-adminsdk-czm27-593590f7d1.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -38,19 +35,38 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Add health check endpoint
+// Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK' });
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
+// Test endpoint for CORS
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'CORS is working',
+    origin: req.headers.origin 
+  });
+});
+
+// Signup endpoint
 app.post('/api/signup', async (req, res) => {
   const { fullName, displayName, email, password } = req.body;
 
+  // Input validation
   if (!fullName || !displayName || !email || !password) {
-    return res.status(400).json({ message: 'Missing required fields.' });
+    return res.status(400).json({ 
+      message: 'Missing required fields.',
+      details: {
+        fullName: !fullName ? 'Full name is required' : null,
+        displayName: !displayName ? 'Display name is required' : null,
+        email: !email ? 'Email is required' : null,
+        password: !password ? 'Password is required' : null
+      }
+    });
   }
 
   try {
+    // Obtain access token for Auth0 Management API
     const tokenResponse = await axios.post(
       `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
       {
@@ -63,6 +79,7 @@ app.post('/api/signup', async (req, res) => {
 
     const accessToken = tokenResponse.data.access_token;
 
+    // Create the user in Auth0
     const createUserResponse = await axios.post(
       `https://${process.env.AUTH0_DOMAIN}/api/v2/users`,
       {
@@ -79,12 +96,14 @@ app.post('/api/signup', async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         },
       }
     );
 
     const userId = createUserResponse.data.user_id;
 
+    // Store user data in Firestore
     await db.collection('users').doc(userId).set({
       uid: userId,
       fullName: fullName,
@@ -93,38 +112,82 @@ app.post('/api/signup', async (req, res) => {
       profilePicture: null,
       username: displayName.toLowerCase().replace(/\s+/g, ''),
       contributions: 0,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
+    // Store username mapping
     await db.collection('usernames').doc(displayName.toLowerCase().replace(/\s+/g, '')).set({
       username: displayName.toLowerCase().replace(/\s+/g, ''),
       userId: userId,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({ 
+      message: 'User created successfully',
+      success: true
+    });
+
   } catch (error) {
-    console.error(
-      'Error creating user:',
-      error.response ? error.response.data : error.message
-    );
+    console.error('Error creating user:', error.response?.data || error.message);
+    
+    // Handle specific error cases
+    if (error.response?.data?.message?.includes('email')) {
+      return res.status(400).json({
+        message: 'Email already exists',
+        error: 'duplicate_email'
+      });
+    }
+
+    if (error.response?.status === 429) {
+      return res.status(429).json({
+        message: 'Too many requests. Please try again later.',
+        error: 'rate_limit'
+      });
+    }
+
     res.status(500).json({
       message: 'Error creating user',
-      error: error.response ? error.response.data : error.message,
+      error: process.env.NODE_ENV === 'development' 
+        ? error.response?.data || error.message 
+        : 'An unexpected error occurred'
     });
   }
 });
 
-// Force HTTPS in production
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.header('x-forwarded-proto') !== 'https') {
-      res.redirect(`https://${req.header('host')}${req.url}`);
-    } else {
-      next();
-    }
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  res.status(500).json({
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
-}
+});
 
+// Handle 404
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Route not found',
+    path: req.path
+  });
+});
+
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`CORS enabled for origins:`, corsOptions.origin);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  // In production, you might want to exit the process and let your process manager restart it
+  // process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  // In production, you might want to exit the process and let your process manager restart it
+  // process.exit(1);
 });
