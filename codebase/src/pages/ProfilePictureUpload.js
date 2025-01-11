@@ -1,112 +1,118 @@
-import { useState } from 'react';
-import { storage, db } from '../firebaseConfig';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import Spinner from 'react-bootstrap/Spinner';
+// src/components/ProfilePictureUpload.js
+import React, { useState } from 'react';
+import { s3 } from '../awsConfig';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
-const ProfilePictureUpload = ({ user, updateProfilePicture }) => {
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  
-  const handleProfilePictureChange = (e) => {
-    const file = e.target.files[0];
+const ProfilePictureUpload = ({ user, updateProfilePicture, id, style }) => {
+  const [error, setError] = useState(null);
 
-    if (file && file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) { // max size: 5mb for firestore db
-      setSelectedFile(file);
-      setErrorMessage(null);
-      handleUpload(file);
-    } else {
-      setErrorMessage('Please select a valid image file (max 5MB).');
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    
+    // Debug logs
+    console.log('File selected:', file);
+    console.log('User object:', user);
+
+    if (!file || !user) {
+      console.error('No file selected or no user object');
+      setError('Please select a file and ensure you are logged in');
+      return;
     }
-  };
 
-  const handleUpload = async (file) => {
     try {
-      if (!file) return;
-      setLoading(true);
-      const storageRef = ref(storage, `profilePictures/${user.uid}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // Log file details
+      console.log('File details:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
 
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
-        },
-        (error) => {
-          console.error('Error uploading file: ', error);
-          setLoading(false);
-          setErrorMessage('Upload failed. Please try again.');
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log('Download URL:', downloadURL);
+      // Create unique file name
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `profile-pictures/${user.sub}/profile-${Date.now()}.${fileExtension}`;
+      console.log('Generated filename:', fileName);
 
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDocSnapshot = await getDoc(userDocRef);
+      // Log S3 params
+      const params = {
+        Bucket: 'resdex-bucket',
+        Key: fileName,
+        Body: file,
+        ContentType: file.type,
+        ACL: 'public-read' // Add this line to make the file publicly readable
+      };
+      console.log('S3 upload params:', params);
 
-          if (!userDocSnapshot.exists()) {
-            await setDoc(userDocRef, { profilePicture: downloadURL });
-            console.log('Profile document created successfully!');
-          } else {
-            await updateDoc(userDocRef, { profilePicture: downloadURL });
-            console.log('Profile picture updated successfully!');
-          }
+      // Upload to S3
+      console.log('Starting S3 upload...');
+      const uploadResult = await s3.upload(params).promise();
+      console.log('S3 upload result:', uploadResult);
 
-          updateProfilePicture(downloadURL);
-          setSelectedFile(null);
-          setLoading(false);
-          setUploadProgress(0);
-        }
-      );
+      const { Location } = uploadResult;
+      console.log('File uploaded to:', Location);
+
+      // Update Firestore
+      console.log('Updating Firestore document for user:', user.sub);
+      const userDocRef = doc(db, 'users', user.sub);
+      await updateDoc(userDocRef, {
+        profilePicture: Location
+      });
+      console.log('Firestore update successful');
+
+      // Update UI
+      updateProfilePicture(Location);
+      console.log('Profile picture updated successfully');
+      
+      // Clear any previous errors
+      setError(null);
+
     } catch (error) {
-      console.error('Error updating or creating profile picture document: ', error);
-      setLoading(false);
-      setErrorMessage('An error occurred. Please try again.');
-    }
-  };
+      console.error('Detailed error:', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      });
 
-  const styles = {
-    loadingOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      zIndex: 1000,
+      // Set specific error messages based on the error
+      if (error.code === 'NoSuchBucket') {
+        setError('S3 bucket not found. Please check your configuration.');
+      } else if (error.code === 'AccessDenied') {
+        setError('Access denied to S3. Please check your permissions.');
+      } else if (error.name === 'FirebaseError') {
+        setError('Error updating Firestore. Please try again.');
+      } else {
+        setError(`Error uploading profile picture: ${error.message}`);
+      }
     }
   };
 
   return (
     <div>
       <input
-        id="profilePictureInput"
         type="file"
-        style={{ display: 'none' }} 
+        id={id}
+        style={style}
         accept="image/*"
-        onChange={handleProfilePictureChange}
+        onChange={handleFileChange}
       />
-      
-      
-      {loading && (
-        <div style={styles.loadingOverlay}>
-          <Spinner animation="border" variant="light" />
+      {error && (
+        <div style={{
+          color: 'red',
+          marginTop: '10px',
+          fontSize: '14px',
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          background: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          zIndex: 1000
+        }}>
+          {error}
         </div>
       )}
-
-      {uploadProgress > 0 && !loading && (
-        <div>
-          <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>
-        </div>
-      )}
-      
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
     </div>
   );
 };
