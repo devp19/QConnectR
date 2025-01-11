@@ -1,5 +1,4 @@
 // server/server.js
-
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
@@ -9,23 +8,28 @@ const app = express();
 
 app.use(express.json());
 
-// Configure CORS options
+// Configure CORS options based on environment
 const corsOptions = {
-  origin: 'http://localhost:3001', // Allow requests from this origin
-  methods: ['GET', 'POST', 'OPTIONS'], // Allowed methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-  credentials: true, // Allow cookies to be sent
-  optionsSuccessStatus: 200, // For legacy browser support
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://qonnectr.vercel.app/'] // Replace with your Vercel domain
+    : ['http://localhost:3001'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200,
 };
 
-// Use CORS middleware with options
 app.use(cors(corsOptions));
-
-// Handle preflight requests
 app.options('*', cors(corsOptions));
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require('./secrets/connectq-e3fb5-firebase-adminsdk-czm27-593590f7d1.json');
+// For production, we'll use environment variables instead of a local file
+let serviceAccount;
+if (process.env.NODE_ENV === 'production') {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  serviceAccount = require('./secrets/connectq-e3fb5-firebase-adminsdk-czm27-593590f7d1.json');
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -34,16 +38,19 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+// Add health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 app.post('/api/signup', async (req, res) => {
   const { fullName, displayName, email, password } = req.body;
 
-  // Input validation
   if (!fullName || !displayName || !email || !password) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
 
   try {
-    // Obtain access token for Auth0 Management API
     const tokenResponse = await axios.post(
       `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
       {
@@ -56,7 +63,6 @@ app.post('/api/signup', async (req, res) => {
 
     const accessToken = tokenResponse.data.access_token;
 
-    // Create the user in Auth0
     const createUserResponse = await axios.post(
       `https://${process.env.AUTH0_DOMAIN}/api/v2/users`,
       {
@@ -79,7 +85,6 @@ app.post('/api/signup', async (req, res) => {
 
     const userId = createUserResponse.data.user_id;
 
-    // Store user data in Firestore
     await db.collection('users').doc(userId).set({
       uid: userId,
       fullName: fullName,
@@ -90,7 +95,6 @@ app.post('/api/signup', async (req, res) => {
       contributions: 0,
     });
 
-    // Store username mapping
     await db.collection('usernames').doc(displayName.toLowerCase().replace(/\s+/g, '')).set({
       username: displayName.toLowerCase().replace(/\s+/g, ''),
       userId: userId,
@@ -109,8 +113,18 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
-// Start the server
+// Force HTTPS in production
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https') {
+      res.redirect(`https://${req.header('host')}${req.url}`);
+    } else {
+      next();
+    }
+  });
+}
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Backend server is running on port ${PORT}`);
+  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });

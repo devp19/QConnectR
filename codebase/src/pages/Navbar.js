@@ -12,7 +12,7 @@ const Navbar = () => {
   const handleLogout = () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
     if (confirmLogout) {
-      logout({ returnTo: window.location.origin });
+      logout({ returnTo: 'https://qonnectr.vercel.app/login' });
     }
   };
 
