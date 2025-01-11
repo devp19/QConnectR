@@ -31,7 +31,7 @@ a {
 
 
 .primary {
-  color: #1a1a1a;
+  color: #ffffff;
 }
 
 .display {
@@ -43,12 +43,10 @@ a {
 }
 
 .box {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
+  background: rgba(105, 99, 99, 0.2);
+  border-radius: 22px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   padding-top: 20px;
   perspective: 1000px;
 
@@ -72,7 +70,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color:#E5E3DF;
+  background-color:#000000;
   margin-left: 40px;
   margin-right: 40px;
 }
