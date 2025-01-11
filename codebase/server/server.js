@@ -11,12 +11,12 @@ app.use(express.json());
 // Configure CORS options based on environment
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://qonnectr.vercel.app/'] // Replace with your Vercel domain
-    : ['http://localhost:3001'],
+    ? ['https://qonnectr.vercel.app']  // Your Vercel frontend URL
+    : ['http://localhost:3000'],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true,
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));

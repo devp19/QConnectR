@@ -58,10 +58,18 @@ const Signup = () => {
       }
 
       // Proceed to call the backend API to create the user in Auth0
-      const response = await fetch('https://qonnectr.vercel.app/api/signup', {
+      const response = await fetch(`${config.apiUrl}/api/signup`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, displayName, email, password }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          fullName, 
+          displayName, 
+          email, 
+          password 
+        }),
       });
 
       const data = await response.json();
