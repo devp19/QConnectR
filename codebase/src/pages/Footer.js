@@ -33,7 +33,7 @@ const Footer = () => {
         <div>
             <div className='last-container'>
                 <img className="img-fluid" id="navbar-logo" src={FooterIcon} alt='ResDex Logo' />
-                <p className='primary medium monarque' style={{marginLeft: '15px', marginTop: '12px'}}> ResDex</p>
+                <p className='primary medium monarque' style={{marginLeft: '15px', marginTop: '12px'}}> QonnectR</p>
             </div>
             
             <div>
@@ -55,7 +55,7 @@ const Footer = () => {
             <div className="center primary">
                 <br></br>
                 <br></br>
-                ©2025, ResDex. All Rights Reserved.
+                ©2025, QonnectR. All Rights Reserved.
             </div>
             <div className="center text-center reduce primary">
                 By using this website, you accept our Terms of Use and Privacy Policy.
