@@ -850,10 +850,10 @@ const Profile = () => {
     <br />
   </Modal.Body>
   <Modal.Footer style={{background: 'black', borderTop: '1px solid white'}}>
-    <a className='custom-view' onClick={handleModalClose} style={{color: 'white'}}>
+    <a className='custom-view' onClick={handleModalClose} style={{color: 'black'}}>
       Cancel
     </a>
-    <a className='custom-view' onClick={handleAboutSubmit} style={{color: 'white'}}>
+    <a className='custom-view' onClick={handleAboutSubmit} style={{color: 'black'}}>
       Save
     </a>
   </Modal.Footer>
