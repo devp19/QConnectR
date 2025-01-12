@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { db } from '../firebaseConfig';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -9,7 +9,7 @@ import PDFUpload from './PDFUpload';
 import { s3 } from '../awsConfig';
 import Select from 'react-select';
 import Carousel from 'react-bootstrap/Carousel';
-
+import QRCode from 'react-qr-code'; // Import QRCode for generating QR codes
 
 
 // Interest options for select
@@ -28,6 +28,7 @@ const Profile = () => {
 
   const { user: auth0User, isAuthenticated } = useAuth0();
   const { username } = useParams();
+  const navigate = useNavigate(); // Hook to navigate between routes
 
   // Authentication and User States
   const [currentUser, setCurrentUser] = useState(null);
@@ -395,6 +396,30 @@ const Profile = () => {
   };
 
 
+  const qrData = "https://example.com";
+
+  // Function to download QR Code as an SVG
+  const handleDownloadQRCode = () => {
+    const svgElement = document.getElementById('qr-code');
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'qr-code.svg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleGoToQRPage = () => {
+    navigate('/QR'); // Navigate to the QR code generator page
+  };
+
+
 
 
 
@@ -422,6 +447,35 @@ const Profile = () => {
                   )}
                 </div>
               </div>
+            </div>
+
+            <div className="row d-flex justify-content-center" style={{ marginTop: "1px" }}>
+            <div className="col">
+              <div className="col-md" style={{ position: "relative", textAlign: "right", marginTop: "20px" }}>
+                {isOwnProfile && (
+                  <button className="custom-edit" onClick={handleGoToQRPage}>
+                    <svg
+                      style={{ marginRight: "14px" }}
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      className="bi bi-qr-code-scan"
+                      fill="white"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M2 2h2v2H2V2ZM1 1v4h4V1H1Zm2 10h2v2H2v-2Zm-1 1v4h4v-4H1Zm10-9h2v2h-2V3Zm-1 0v4h4V1h-4v2Zm0 10h2v2h-2v-2Zm-1 0v4h4v-4h-4Zm0-5v1h1v1h-1v2h-1V7h2v1h-1ZM2 7h2v1H2V7Zm0 4h1v1H1v-1h1v-1h1v1Zm4-5v2H4v1h2V8h1v1h2V7H6Zm2 4h1v1H7v-2h2v1H7v1Z" />
+                    </svg>
+                    QR Code Generator
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+
+            {/* QR Code (hidden until downloaded) */}
+            <div style={{ display: 'none' }}>
+              <QRCode id="qr-code" value={qrData} size={150} />
             </div>
 
             {/* Profile Picture Section */}

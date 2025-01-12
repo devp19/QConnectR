@@ -19,6 +19,7 @@ import V101 from './Releases/V101';
 import Notifications from './pages/Notifications';
 import AuthStatus from './pages/AuthStatus';
 import ProtectedRoute from './pages/ProtectedRoute';
+import QR from './pages/QR'
 
 // ScrollToTop component
 function ScrollToTop() {
@@ -46,6 +47,7 @@ function App() {
         <Route path="/team" element={<Team />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/qr" element={<QR />} />
         <Route path="/success" element={<Success />} />
         <Route path="/releasedocs" element={<ReleaseDocs />} />
         <Route path="/releasedocs/v101" element={<V101 />} />
