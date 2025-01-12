@@ -14,7 +14,7 @@ root.render(
       domain="dev-7t302exjqhg6x04w.us.auth0.com"
       clientId="kcpmUlIuokOuZq8eJ2rbWuWFkrg3yAEz"  // Replace with your SPA client ID
       authorizationParams={{
-        redirect_uri: window.location.origin,
+        redirect_uri: "https://qonnectr.vercel.app",
         scope: "openid profile email"
       }}
       cacheLocation="localstorage"
