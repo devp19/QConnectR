@@ -175,8 +175,8 @@ const Signup = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                {error && <p className='error-text primary'>{error}</p>}
-                {success && <p className='success-text primary'>{success}</p>}
+                {error && <p className='error-text white'>{error}</p>}
+                {success && <p className='success-text white'>{success}</p>}
 
                 <Button className='custom' type='submit'>
                   Sign Up

@@ -31,16 +31,16 @@ const Login = () => {
         <div className='row d-flex justify-content-center'>
           <div className='col-md-5 box'>
             <div className='row d-flex justify-content-center' style={{ marginTop: '50px' }}>
-              <h3 className='center primary monarque'>ResDex – Sign In</h3>
-              <img src={Logo} alt='ResDex Logo' className='center' id='img-login'></img>
+              <h3 className='center primary monarque'>QonnectR – Sign In</h3>
+              <img src={Logo} alt='QonnectR Logo' className='center' id='img-login'></img>
             </div>
             <div className='row d-flex justify-content-center'>
               {!isAuthenticated && (
-                <Button className='custom' onClick={handleLogin}>
+                <a className='custom-view text-center' style={{maxWidth: '200px'}} onClick={handleLogin}>
                   Sign In
-                </Button>
+                </a>
               )}
-              <p className='primary'>
+              <p className='primary text-center'>
                 <br />
                 Don't have an account? <Link className='primary' to='/signup'>Sign Up</Link>
               </p>
