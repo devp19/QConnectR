@@ -108,10 +108,10 @@ const Signup = () => {
               className='row d-flex justify-content-center'
               style={{ marginTop: '50px' }}
             >
-              <h3 className='center primary monarque'>ResDex – Sign Up</h3>
+              <h3 className='center primary monarque'>QonnectR – Sign Up</h3>
               <img
                 src={Logo}
-                alt='ResDex Logo'
+                alt='QonnectR Logo'
                 className='center'
                 id='img-login'
               ></img>
