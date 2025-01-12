@@ -47,7 +47,6 @@ Imagine you're someone with great project ideas but hesitant to use LinkedIn, as
 
 ## Team Members
 - Dev Patel
-- Darsh Kansara
-- Krish Munshi
-- Dhruvil Patel
-- Jay Patel
+- Fenil Shah
+- Aryan Karnati
+- Sapna Suthar
