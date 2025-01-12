@@ -624,8 +624,12 @@ const Profile = () => {
   <div style={{borderRadius: '5px', margin: '0px'}} className='row d-flex justify-content-center'>
     <div className='col-md-12 box'>
       <div className='row' style={{marginTop: "-10px"}}>
-        <div className='col-md d-flex align-items-center'>
-          <h4 className='primary p-2'>Shared Projects</h4>
+        <div className='col-md-5 d-flex align-items-center'>
+          <h4 className='primary p-2'>Shared Projects            
+          </h4>
+          </div>
+                <div className='col-md d-flex text-center m-2 justify-content-end'>
+          <a className='custom-view' target='_blank' href='https://qonnectr.vercel.app/create'>Add Project</a>
         </div>
       </div>
 
@@ -633,7 +637,6 @@ const Profile = () => {
         borderRadius: '5px',
         padding: '20px',
         paddingBottom: '50px',
-        border: '1px solid white',
         marginBottom: '10px',
       }} className='row justify-content-center align-items-center'>
         {profileUser.research && profileUser.research.length > 0 ? (
@@ -670,35 +673,14 @@ const Profile = () => {
                         </div>
                       )}
 
-                      {/* Collaborators */}
-                      {paper.collaborators && paper.collaborators.length > 0 && (
-                        <div style={{ marginBottom: '20px' }}>
-                          <h6 className='primary'>Collaborators:</h6>
-                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                            {paper.collaborators.map((collaborator, idx) => (
-                              <div key={idx} style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                background: '#1a1a1a',
-                                padding: '5px 10px',
-                                borderRadius: '20px'
-                              }}>
-                                <img
-                                  src={collaborator.profilePicture || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
-                                  alt={collaborator.name}
-                                  style={{
-                                    width: '25px',
-                                    height: '25px',
-                                    borderRadius: '50%',
-                                    marginRight: '8px'
-                                  }}
-                                />
-                                <span className='primary'>{collaborator.name}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+{paper.projectLink && (
+  <div style={{ marginTop: '10px' }}>
+    <a href={paper.projectLink} target="_blank" rel="noopener noreferrer" className="primary">
+{paper.projectLink}    </a>
+  </div>
+)}
+
+                    
 
                       {/* Created Date */}
                       <small className='primary' style={{ opacity: 0.7 }}>

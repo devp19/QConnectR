@@ -18,6 +18,8 @@ const Create = () => {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [collaboratorOptions, setCollaboratorOptions] = useState([]);
+  const [projectLink, setProjectLink] = useState('');
+
 
   const interestOptions = [
     { value: 'Frontend', label: 'Frontend Development' },
@@ -163,11 +165,7 @@ const Create = () => {
           title: Title,
           description: description,
           topics: selectedTopics.map(topic => topic.label),
-          collaborators: selectedCollaborators.map(collaborator => ({
-            id: collaborator.value,
-            name: collaborator.label,
-            profilePicture: collaborator.profilePicture
-          })),
+          projectLink: projectLink,
           createdAt: new Date().toISOString(),
           createdBy: {
             id: auth0User.sub,
@@ -278,22 +276,17 @@ const Create = () => {
                   styles={customStyles}
                 />
               </Form.Group>
-              {/* <Form.Group className="mb-3">
-                <Form.Label style={{ color: 'black' }}>Collaborators</Form.Label>
-                <Select
-                  isMulti
-                  name="collaborators"
-                  options={collaboratorOptions}
-                  className="basic-multi-select primary"
-                  classNamePrefix="select"
-                  value={selectedCollaborators}
-                  onChange={(selected) => setSelectedCollaborators(selected)}
-                  placeholder="Select collaborators"
-                  styles={customStyles}
-                  onMenuOpen={loadCollaborators}
-                  components={{ Option: CustomOption, MultiValue: CustomMultiValue }}
-                />
-              </Form.Group> */}
+              <Form.Group className="mb-3" controlId="formProjectLink">
+  <Form.Label className='primary'>Project Link (e.g., GitHub)</Form.Label>
+  <Form.Control
+    type="url"
+    placeholder="Enter URL"
+    value={projectLink}
+    onChange={(e) => setProjectLink(e.target.value)}
+    maxLength="200"
+  />
+</Form.Group>
+
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
