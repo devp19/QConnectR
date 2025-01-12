@@ -5,6 +5,8 @@ import MLH from '../images/mlh-logo-white.png'
 import DELTA from '../images/original.png';
 import AUTH0 from '../images/auth0-logo-white.png';
 import FIREBASE from '../images/logo-firebase.webp';
+import VERCEL from '../images/vercel-text.svg';
+import AWS from '../images/aws-brand.svg';
 import Dev from '../images/dev.png';
 import Empty from '../images/empty.webp';
 import Alert from 'react-bootstrap/Alert';
@@ -106,6 +108,8 @@ const Home = () => {
               <img style={{height: '60px',  marginRight: '30px', marginLeft: '30px'}} src={DELTA} alt="" />
               <img style={{height: '60px',  marginRight: '30px', marginLeft: '30px'}} src={AUTH0} alt="" />
               <img style={{height: '60px',  marginRight: '50px', marginLeft: '30px'}} src={FIREBASE} alt="" />
+              <img style={{height: '60px',  marginRight: '50px', marginLeft: '30px'}} src={VERCEL} alt="" />
+              <img style={{height: '60px',  marginRight: '50px', marginLeft: '30px'}} src={AWS} alt="" />
             </div>
       </div>        
       </div>

@@ -646,7 +646,7 @@ const Profile = () => {
             .map((paper, index) => (
               <div key={index} style={{
                 marginBottom: index !== profileUser.research.length - 1 ? '30px' : '0',
-                borderBottom: index !== profileUser.research.length - 1 ? '1px solid #1a1a1a' : 'none',
+                borderBottom: index !== profileUser.research.length - 1 ? '1px solid white' : 'none',
                 paddingBottom: '30px'
               }}>
                 <div style={{
