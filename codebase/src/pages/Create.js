@@ -222,7 +222,7 @@ const Create = () => {
             )}
             <Form className="contact-form">
               <Form.Group className="mb-3" style={{ borderTop: '1px solid #1a1a1a', paddingTop: '30px' }} controlId="formBasicFullName">
-                <Form.Label className='primary'>Research Paper Title</Form.Label>
+                <Form.Label className='primary'>Project Title</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter Title"
@@ -233,7 +233,7 @@ const Create = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label className='primary'>Description</Form.Label>
+                <Form.Label className='primary'>Project Description</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
@@ -263,7 +263,7 @@ const Create = () => {
                   styles={customStyles}
                 />
               </Form.Group>
-              <Form.Group className="mb-3">
+              {/* <Form.Group className="mb-3">
                 <Form.Label style={{ color: 'black' }}>Collaborators</Form.Label>
                 <Select
                   isMulti
@@ -278,7 +278,7 @@ const Create = () => {
                   onMenuOpen={loadCollaborators}
                   components={{ Option: CustomOption, MultiValue: CustomMultiValue }}
                 />
-              </Form.Group>
+              </Form.Group> */}
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
@@ -289,15 +289,15 @@ const Create = () => {
                   {success}
                 </div>
               )}
-              <Button 
-                className="custom" 
+              <a
+                className="custom-view" 
                 style={{ marginBottom: '20px' }} 
                 type="submit" 
                 onClick={handleSubmit}
-                disabled={!Title.trim() || !description.trim()}
+                // disabled={!Title.trim() || !description.trim()}
               >
                 Create
-              </Button>
+              </a>
             </Form>
           </div>
         </div>

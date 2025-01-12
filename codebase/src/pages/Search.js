@@ -83,7 +83,7 @@ const Search = () => {
   const customStyles = {
     control: (provided) => ({
       ...provided,
-      width: '100px',
+      width: '120px',
       borderTopRightRadius: '5px',
       borderBottomRightRadius: '5px',
       backgroundColor: '#1a1a1a',
