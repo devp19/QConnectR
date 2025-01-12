@@ -10,28 +10,7 @@ import { s3 } from '../awsConfig';
 import Select from 'react-select';
 import Carousel from 'react-bootstrap/Carousel';
 
-// Cache configuration
-const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
 
-// Local storage helpers
-const saveProfileToLocalStorage = (username, profileData) => {
-  const dataToStore = {
-    profile: profileData,
-    timestamp: Date.now()
-  };
-  localStorage.setItem(`profile_${username}`, JSON.stringify(dataToStore));
-};
-
-const getProfileFromLocalStorage = (username) => {
-  const storedData = localStorage.getItem(`profile_${username}`);
-  if (storedData) {
-    const { profile, timestamp } = JSON.parse(storedData);
-    if (Date.now() - timestamp < CACHE_EXPIRATION) {
-      return profile;
-    }
-  }
-  return null;
-};
 
 // Interest options for select
 const interestOptions = [
@@ -136,71 +115,57 @@ const Profile = () => {
       setLoading(false);
       return;
     }
-
+  
     try {
-      const cachedProfile = getProfileFromLocalStorage(username);
-      if (cachedProfile) {
-        console.log("Profile found in local storage");
-        setProfileUser(cachedProfile);
-        setAbout(cachedProfile.about || '');
-        setOrganization(cachedProfile.organization || '');
-        setInterests(cachedProfile.interests || '');
-        setProfilePicture(cachedProfile.profilePicture || null);
-        if (cachedProfile.uid) {
-          await fetchPDFs(cachedProfile.uid);
-        }
-        setLoading(false);
-        return;
-      }
-
       const usernamesRef = collection(db, 'usernames');
       const q = query(usernamesRef, where('username', '==', username.toLowerCase()));
       const querySnapshot = await getDocs(q);
-
+  
       if (querySnapshot.empty) {
         setProfileUser(null);
         setLoading(false);
         return;
       }
-
+  
       const userDoc = querySnapshot.docs[0].data();
       const userId = userDoc.userId;
-
+  
       if (!userId) {
         setLoading(false);
         return;
       }
-
+  
       const userDocRef = doc(db, 'users', userId);
       const userDocSnapshot = await getDoc(userDocRef);
-
+  
       if (!userDocSnapshot.exists()) {
         setLoading(false);
         return;
       }
-
+  
       const userData = userDocSnapshot.data();
       const profileData = {
         ...userData,
         uid: userId
       };
-
+  
       setProfileUser(profileData);
       setProfilePicture(userData.profilePicture || null);
       setAbout(userData.about || '');
       setOrganization(userData.organization || '');
       setInterests(userData.interests || '');
-
+  
       if (userData.interests) {
         const interestsArray = userData.interests.split(', ');
         setSelectedInterests(
           interestsArray.map(interest => ({ value: interest, label: interest }))
         );
       }
-
-      saveProfileToLocalStorage(username, profileData);
-      await fetchPDFs(userId);
-
+  
+      if (userId) {
+        await fetchPDFs(userId);
+      }
+  
     } catch (error) {
       console.error('Error fetching profile data:', error);
       setProfileUser(null);
@@ -210,67 +175,55 @@ const Profile = () => {
   }, [username, fetchPDFs]);
 
 
-  const updateProfilePicture = useCallback((newPictureUrl) => {
+  const updateProfilePicture = useCallback(async (newPictureUrl) => {
     if (!auth0User?.sub) return;
-
-    setProfilePicture(newPictureUrl);
-    setProfileUser(prev => {
-      if (prev) {
-        const updatedUser = { ...prev, profilePicture: newPictureUrl };
-        saveProfileToLocalStorage(username, updatedUser);
-        return updatedUser;
-      }
-      return null;
-    });
-  }, [username, auth0User]);
-
+  
+    try {
+      const userDocRef = doc(db, 'users', auth0User.sub);
+      await updateDoc(userDocRef, { profilePicture: newPictureUrl });
+      setProfilePicture(newPictureUrl);
+      await fetchProfileData(); // Refresh the data
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+    }
+  }, [auth0User, fetchProfileData]);
+  
   const updateAbout = useCallback(async (newAboutSection) => {
     if (!profileUser || !auth0User?.sub || auth0User.sub !== profileUser.uid) return;
-
+  
     try {
       const userDocRef = doc(db, 'users', auth0User.sub);
       await updateDoc(userDocRef, { about: newAboutSection });
-      setAbout(newAboutSection);
-      const updatedUser = { ...profileUser, about: newAboutSection };
-      saveProfileToLocalStorage(username, updatedUser);
-      setProfileUser(updatedUser);
+      await fetchProfileData(); // Refresh the data
     } catch (error) {
       console.error("Error updating about section:", error);
     }
-  }, [username, profileUser, auth0User]);
-
+  }, [profileUser, auth0User, fetchProfileData]);
+  
   const updateOrganization = useCallback(async (newOrganizationSection) => {
     if (!profileUser || !auth0User?.sub || auth0User.sub !== profileUser.uid) return;
-
+  
     try {
       const userDocRef = doc(db, 'users', auth0User.sub);
       await updateDoc(userDocRef, { organization: newOrganizationSection });
-      setOrganization(newOrganizationSection);
-      const updatedUser = { ...profileUser, organization: newOrganizationSection };
-      saveProfileToLocalStorage(username, updatedUser);
-      setProfileUser(updatedUser);
+      await fetchProfileData(); // Refresh the data
     } catch (error) {
       console.error("Error updating organization section:", error);
     }
-  }, [username, profileUser, auth0User]);
-
+  }, [profileUser, auth0User, fetchProfileData]);
+  
   const updateInterests = useCallback(async (newInterests) => {
     if (!profileUser || !auth0User?.sub || auth0User.sub !== profileUser.uid) return;
-
-    const interestValues = newInterests.map(interest => interest.value);
-    setSelectedInterests(newInterests);
-    const updatedUser = { ...profileUser, interests: interestValues.join(', ') };
-    saveProfileToLocalStorage(username, updatedUser);
-    setProfileUser(updatedUser);
-    
+  
     try {
+      const interestValues = newInterests.map(interest => interest.value);
       const userDocRef = doc(db, 'users', auth0User.sub);
       await updateDoc(userDocRef, { interests: interestValues.join(', ') });
-      console.log("Interests updated in Firestore.");
+      await fetchProfileData(); // Refresh the data
     } catch (error) {
-      console.error("Error updating interests in Firestore:", error);
+      console.error("Error updating interests:", error);
     }
-  }, [username, profileUser, auth0User]);
+  }, [profileUser, auth0User, fetchProfileData]);
 
   const handleEdit = (pdf) => {
     if (!auth0User?.sub || !profileUser || auth0User.sub !== profileUser.uid) {
@@ -678,6 +631,54 @@ const Profile = () => {
                       <small className='primary' style={{ opacity: 0.7 }}>
                         Created: {new Date(paper.createdAt).toLocaleDateString()}
                       </small>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+  <small className='primary' style={{ opacity: 0.7 }}>
+    Created: {new Date(paper.createdAt).toLocaleDateString()}
+  </small>
+  
+  {isOwnProfile && (
+    <div 
+      onClick={() => {
+        if (window.confirm('Are you sure you want to delete this research paper?')) {
+          // Add delete functionality here
+          const updatedResearch = profileUser.research.filter(p => p.id !== paper.id);
+          const userDocRef = doc(db, 'users', auth0User.sub);
+          updateDoc(userDocRef, {
+            research: updatedResearch
+          }).then(() => {
+            // Update local state
+            setProfileUser(prev => ({
+              ...prev,
+              research: updatedResearch
+            }));
+          }).catch(error => {
+            console.error("Error deleting research:", error);
+          });
+        }
+      }}
+      style={{ 
+        cursor: 'pointer', 
+        opacity: 0.5,
+        transition: 'opacity 0.2s',
+        padding: '5px'
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+      onMouseLeave={(e) => e.currentTarget.style.opacity = '0.5'}
+    >
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="16" 
+        height="16" 
+        fill="currentColor" 
+        className="bi bi-trash" 
+        viewBox="0 0 16 16"
+      >
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>
+    </div>
+  )}
+</div>
                     </div>
                   </div>
                 </div>
@@ -685,7 +686,7 @@ const Profile = () => {
             ))
         ) : (
           <div className="text-center primary" style={{marginTop: '40px'}}>
-            No Research Papers Created
+            No Shared Projects
           </div>
         )}
       </div>
