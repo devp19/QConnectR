@@ -12,7 +12,7 @@ const AuthStatus = () => {
       {!isAuthenticated ? (
         <button onClick={() => loginWithRedirect()}>Log In</button>
       ) : (
-        <button onClick={() => logout({ returnTo: window.location.origin })}>Log Out</button>
+        <button onClick={() => logout({ returnTo: 'https://qonnectr.vercel.app'})}>Log Out</button>
       )}
     </div>
   );
