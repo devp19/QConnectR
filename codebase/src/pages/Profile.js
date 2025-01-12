@@ -686,9 +686,7 @@ const Profile = () => {
                         Created: {new Date(paper.createdAt).toLocaleDateString()}
                       </small>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-  <small className='primary' style={{ opacity: 0.7 }}>
-    Created: {new Date(paper.createdAt).toLocaleDateString()}
-  </small>
+  
   
   {isOwnProfile && (
     <div 
@@ -723,7 +721,7 @@ const Profile = () => {
         xmlns="http://www.w3.org/2000/svg" 
         width="16" 
         height="16" 
-        fill="currentColor" 
+        fill="primary" 
         className="bi bi-trash" 
         viewBox="0 0 16 16"
       >
@@ -740,7 +738,7 @@ const Profile = () => {
             ))
         ) : (
           <div className="text-center primary" style={{marginTop: '40px'}}>
-            No Shared Projects
+            <a className='primary' href='https://qonnectr.vercel.app/create'>No Shared Projects</a>
           </div>
         )}
       </div>

@@ -194,7 +194,7 @@ const Create = () => {
   };
 
   if (!isAuthenticated) {
-    return <div className="primary text-center mt-5">Please log in to create research.</div>;
+    return <div className="primary text-center mt-5">Please log in to create a new project.</div>;
   }
 
   return (
