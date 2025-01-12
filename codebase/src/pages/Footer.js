@@ -44,11 +44,12 @@ const Footer = () => {
                         <Link className='link' to="/team"><span className='primary'>Team</span></Link>
                     </div>
                     <div className='col-md-2 text-center'>
-                        <Link className='link' to="/contact"><span className='primary'>Contact</span></Link>
+                        <Link className='link' to="/search"><span className='primary'>Search</span></Link>
                     </div>
                     <div className='col-md-2 text-center'>
-                        <Link className='link' to="/releasedocs"><span className='primary'>Releases</span></Link>
+                        <Link className='link' to="/contact"><span className='primary'>Contact</span></Link>
                     </div>
+                    
                 </div>
             </div>
             <div className="center primary">

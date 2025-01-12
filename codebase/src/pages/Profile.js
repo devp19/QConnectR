@@ -767,140 +767,100 @@ const Profile = () => {
 
             {/* Edit Profile Modal */}
             <Modal show={isModalOpen} onHide={handleModalClose} className='box'>
-        <Modal.Header style={{background: '#e5e3df', borderBottom: '1px solid white'}} closeButton>
-          <Modal.Title className='primary'>Edit Profile</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-          {/* About Section */}
-          <div style={{borderBottom: '1px solid white', paddingBottom: '20px'}}>
-            <p><strong className='primary'>About</strong></p>
-            <textarea
-              spellCheck="false"
-              maxLength="300"
-              value={newAbout}
-              onChange={(e) => setNewAbout(e.target.value)}
-              rows="6"
-              style={{ 
-                width: '100%', 
-                color: 'black', 
-                borderRadius: '5px', 
-                resize: "none", 
-                padding:'20px' 
-              }}
-            />
-          </div>
-          <br />
+  <Modal.Header style={{background: 'black', borderBottom: '1px solid white'}} closeButton>
+    <Modal.Title className='white'>Edit Profile</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{background: 'black', borderBottom: '1px solid white', color: 'white'}}>
+    {/* About Section */}
+    <div style={{borderBottom: '1px solid white', paddingBottom: '20px'}}>
+      <p><strong className='primary'>About</strong></p>
+      <textarea
+        spellCheck="false"
+        maxLength="300"
+        value={newAbout}
+        onChange={(e) => setNewAbout(e.target.value)}
+        rows="6"
+        style={{ 
+          width: '100%', 
+          color: 'white', 
+          backgroundColor: 'black',
+          borderRadius: '5px', 
+          resize: "none", 
+          padding: '20px',
+          border: '1px solid white' 
+        }}
+      />
+    </div>
+    <br />
 
-          {/* Organization Section */}
-          <div style={{borderBottom: '1px solid white', paddingBottom: '20px'}}>
-            <p><strong className='primary'>Organization</strong></p>
-            <textarea
-              spellCheck="false"
-              maxLength="40"
-              value={newOrganization}
-              onChange={(e) => setNewOrganization(e.target.value)}
-              rows="1"
-              style={{ 
-                width: '100%', 
-                color: 'black', 
-                borderRadius: '5px', 
-                resize: "none", 
-                padding:'20px' 
-              }}
-            />
-          </div>
-          <br />
+    {/* Organization Section */}
+    <div style={{borderBottom: '1px solid white', paddingBottom: '20px'}}>
+      <p><strong className='primary'>Organization</strong></p>
+      <textarea
+        spellCheck="false"
+        maxLength="40"
+        value={newOrganization}
+        onChange={(e) => setNewOrganization(e.target.value)}
+        rows="1"
+        style={{ 
+          width: '100%', 
+          color: 'white', 
+          backgroundColor: 'black',
+          borderRadius: '5px', 
+          resize: "none", 
+          padding: '20px',
+          border: '1px solid white' 
+        }}
+      />
+    </div>
+    <br />
 
-          {/* Interests Section */}
-          <p><strong className='primary'>Interests</strong></p>
-          <Select
-            isMulti
-            name="interests"
-            options={interestOptions}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            value={selectedInterests}
-            rows='1'
-            onChange={(selected) => {
-              if (selected.length <= 3) {
-                setSelectedInterests(selected);
-              }
-            }}
-            isOptionDisabled={() => selectedInterests.length >= 3}
-            placeholder="Select up to 3 interests"
-            styles={customStyles}
-          />
-          <br />
-        </Modal.Body>
-        <Modal.Footer style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-          <a className='custom-view' onClick={handleModalClose}>
-            Cancel
-          </a>
-          <a className='custom-view' onClick={handleAboutSubmit}>
-            Save
-          </a>
-        </Modal.Footer>
-      </Modal>
+    {/* Interests Section */}
+    <p><strong className='primary'>Interests</strong></p>
+    <Select
+      isMulti
+      name="interests"
+      options={interestOptions}
+      className="basic-multi-select"
+      classNamePrefix="select"
+      value={selectedInterests}
+      rows='1'
+      onChange={(selected) => {
+        if (selected.length <= 3) {
+          setSelectedInterests(selected);
+        }
+      }}
+      isOptionDisabled={() => selectedInterests.length >= 3}
+      placeholder="Select up to 3 interests"
+      styles={{
+        ...customStyles,
+        control: (provided) => ({
+          ...provided,
+          backgroundColor: 'black',
+          color: 'white',
+          border: '1px solid white',
+        }),
+        option: (provided) => ({
+          ...provided,
+          backgroundColor: 'black',
+          color: 'white',
+        }),
+      }}
+    />
+    <br />
+  </Modal.Body>
+  <Modal.Footer style={{background: 'black', borderTop: '1px solid white'}}>
+    <a className='custom-view' onClick={handleModalClose} style={{color: 'white'}}>
+      Cancel
+    </a>
+    <a className='custom-view' onClick={handleAboutSubmit} style={{color: 'white'}}>
+      Save
+    </a>
+  </Modal.Footer>
+</Modal>
 
-      {/* Edit Document Modal */}
-      <Modal show={showRemoveModal} className='box' onHide={() => setShowRemoveModal(false)}>
-        <Modal.Header style={{background: '#e5e3df', borderBottom: '1px solid white'}} closeButton>
-          <Modal.Title style={{color: 'black'}}>Edit Document</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-          <Form style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-            <Form.Group className="mb-3" controlId="formDocumentTitle">
-              <Form.Label className='primary'>Title</Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="Enter new title" 
-                value={editedTitle} 
-                onChange={(e) => setEditedTitle(e.target.value)} 
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formDocumentDescription">
-              <Form.Label className='primary'>Description</Form.Label>
-              <Form.Control 
-                as="textarea" 
-                rows={3} 
-                maxLength={150} 
-                placeholder="Enter new description" 
-                value={editedDescription} 
-                onChange={(e) => setEditedDescription(e.target.value)} 
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formDocumentTags">
-              <Form.Label className='primary'>Related Topic</Form.Label>
-              <Select
-                isMulti
-                name="tags"
-                options={interestOptions}
-                className="basic-multi-select"
-                classNamePrefix="select"
-                value={editedTags}
-                onChange={(selected) => {
-                  if (selected.length <= 3) {
-                    setEditedTags(selected);
-                  }
-                }}
-                isOptionDisabled={() => editedTags.length >= 3}
-                placeholder="Select a topic!"
-                styles={customStyles}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer style={{background: '#e5e3df', borderBottom: '1px solid white'}}>
-          <Button className='custom-view' onClick={confirmRemove}>
-            Remove
-          </Button>
-          <div className="ms-auto">
-            <Button className='custom-view' onClick={saveChanges}>
-              Save Changes
-            </Button>
-          </div>
-        </Modal.Footer>
-      </Modal>
+
+      
 
     </div>
 
