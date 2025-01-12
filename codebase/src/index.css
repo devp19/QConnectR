@@ -31,7 +31,7 @@ a {
 
 
 .primary {
-  color: #1a1a1a;
+  color: #ffffff;
 }
 
 .display {
@@ -43,7 +43,7 @@ a {
 }
 
 .box {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(51, 51, 51, 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 16px;
@@ -72,7 +72,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color:#E5E3DF;
+  background-color:#0f0f0f;
   margin-left: 40px;
   margin-right: 40px;
 }
@@ -233,7 +233,7 @@ code {
   left: 0;
   height: 2px;
   width: 0;
-  background-color: #1a1a1a;
+  background-color: #ffffff;
   transition: width 0.5s;
 }
 
@@ -327,8 +327,8 @@ code {
 
 .custom-view,
 .custom-view-2 {
-  color:rgb(255, 255, 255);
-  background-color: #1a1a1a;
+  color:rgb(20, 20, 20);
+  background-color: #ffffff;
   text-decoration: none;
   font-size: 15px;
   border: none;

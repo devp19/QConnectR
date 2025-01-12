@@ -14,14 +14,26 @@ import QRCode from 'react-qr-code'; // Import QRCode for generating QR codes
 
 // Interest options for select
 const interestOptions = [
-  { value: 'Technology', label: 'Technology' },
-  { value: 'Healthcare', label: 'Healthcare' },
-  { value: 'Finance', label: 'Finance' },
-  { value: 'Construction', label: 'Construction' },
-  { value: 'Education', label: 'Education' },
-  { value: 'Hospitality', label: 'Hospitality' },
-  { value: 'Law', label: 'Law' },
-  { value: 'Arts', label: 'Arts' }
+  { value: 'Frontend', label: 'Frontend Development' },
+  { value: 'Backend', label: 'Backend Development' },
+  { value: 'Mobile', label: 'Mobile Development' },
+  { value: 'DevOps', label: 'DevOps & Cloud' },
+  { value: 'AI', label: 'Artificial Intelligence' },
+  { value: 'Machine-Learning', label: 'Machine Learning' },
+  { value: 'Data-Science', label: 'Data Science' },
+  { value: 'Blockchain', label: 'Blockchain' },
+  { value: 'Cybersecurity', label: 'Cybersecurity' },
+  { value: 'IoT', label: 'Internet of Things' },
+  { value: 'AR-VR', label: 'AR/VR Development' },
+  { value: 'Game-Dev', label: 'Game Development' },
+  { value: 'UI-UX', label: 'UI/UX Design' },
+  { value: 'Database', label: 'Database Systems' },
+  { value: 'Network', label: 'Network Engineering' },
+  { value: 'Embedded', label: 'Embedded Systems' },
+  { value: 'Quantum', label: 'Quantum Computing' },
+  { value: 'Robotics', label: 'Robotics' },
+  { value: 'NLP', label: 'Natural Language Processing' },
+  { value: 'Computer-Vision', label: 'Computer Vision' }
 ];
 
 const Profile = () => {
@@ -481,9 +493,11 @@ const Profile = () => {
             {/* Profile Picture Section */}
             <div 
               style={{
+                display: 'flex',
+                marginLeft: '360px',
                 width: '150px',
                 height: '150px',
-                borderRadius: '5%',
+                borderRadius: '50%',
                 position: 'relative',
                 overflow: 'hidden',
                 backgroundColor: '#ccc',
@@ -539,11 +553,11 @@ const Profile = () => {
 
             {/* Profile Information */}
             <div className='row'>
-              <div className='col-md'>
+              <div className='col-md text-center'>
                 <h1 className='primary mt-4'>
                   {profileUser.fullName}
-                  {(username === "dev" || username === "fenil" || username === "deep" || username === "rishi" || username === "bhavi") && (
-                    <svg style={{ marginLeft: '20px' }} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="black" className="bi bi-patch-check-fill" viewBox="0 0 16 16" title="Verified user">
+                  {(username === "dev" || username === "fenil" || username === "dev" || username === "sapna" || username === "aryan") && (
+                    <svg style={{ marginLeft: '20px' }} xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" className="bi bi-patch-check-fill" viewBox="0 0 16 16" title="Verified user">
                       <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708"/>
                     </svg>
                   )}
@@ -552,7 +566,7 @@ const Profile = () => {
             </div>
 
             {/* About Section */}
-            <p className='primary'>{about}</p>
+            <p className='text-center' style={{color: 'grey'}}>{about}</p>
 
             {/* Organization and Interests */}
             <div className='row d-flex justify-content-center' style={{margin: '0px'}}>
@@ -565,8 +579,8 @@ const Profile = () => {
                 margin: '5px'
               }}>
                 {organization && (
-                  <p className='primary'>
-                    <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="primary" className="bi bi-buildings" viewBox="0 0 16 16">
+                  <p className='primary text-center'>
+                    <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-buildings" viewBox="0 0 16 16">
                       <path d="M14.763.075A.5.5 0 0 1 15 .5v15a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V10a.5.5 0 0 1 .342-.474L6 7.64V4.5a.5.5 0 0 1 .276-.447l8-4a.5.5 0 0 1 .487.022M6 8.694 1 10.36V15h5zM7 15h2v-1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V15h2V1.309l-7 3.5z"/>
                       <path d="M2 11h1v1H2zm2 0h1v1H4zm-2 2h1v1H2zm2 0h1v1H4zm4-4h1v1H8zm2 0h1v1h-1zm-2 2h1v1H8zm2 0h1v1h-1zm2-2h1v1h-1zm0 2h1v1h-1zM8 7h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zM8 5h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zm0-2h1v1h-1z"/>
                     </svg>
@@ -575,8 +589,8 @@ const Profile = () => {
                 )}
 
                 {interests && interests.length > 0 && (
-                  <div>
-                    <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="primary" className="bi bi-tags-fill" viewBox="0 0 16 16">
+                  <div className='text-center'>
+                    <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-tags-fill" viewBox="0 0 16 16">
                       <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
                       <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043z"/>
                     </svg>
@@ -738,7 +752,7 @@ const Profile = () => {
             ))
         ) : (
           <div className="text-center primary" style={{marginTop: '40px'}}>
-            <a className='primary' href='https://qonnectr.vercel.app/create'>No Shared Projects</a>
+            <a className='primary' href='https://qonnectr.vercel.app/create'>⨁ Add Project</a>
           </div>
         )}
       </div>

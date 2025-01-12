@@ -122,7 +122,7 @@ const Search = () => {
         <br />
         <div className='d-flex justify-content-center input fade-in'>
           <div className="input-group search-input-group box d-flex" 
-               style={{maxWidth: '600px', outline: '1px solid white', borderRadius: '6px', marginBottom: '100px', padding: '20px'}}>
+               style={{maxWidth: '600px', borderRadius: '6px', marginBottom: '100px', padding: '20px'}}>
             <Select
               value={searchType}
               onChange={handleSearchTypeChange}
@@ -151,41 +151,42 @@ const Search = () => {
                             flex: results.length === 1 ? '0 0 100%' : '0 0 calc(50% - 10px)', 
                             marginBottom: '20px', 
                             maxWidth: results.length === 1 ? '600px' : 'none' }}>
-                  <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center" style={{marginRight: '30px'}}>
-                      <img 
-                        src={DefaultImage} 
-                        alt={`${result.fullName}'s profile`} 
-                        style={{ width: '50px', height: '50px', borderRadius: '50%', marginRight: '15px' }} 
-                      />
-                      <div>
-                        <strong style={{color: 'black'}}>{result.fullName}</strong>
-                        <span><i style={{color: 'gray', marginLeft: '10px'}}>'{result.username}'</i></span>
-                        <br />
-                        {result.organization && (
-                          <span>
-                            <i style={{ color: 'gray' }}>
-                              <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="grey" className="bi bi-buildings" viewBox="0 0 16 16">
-                                <path d="M14.763.075A.5.5 0 0 1 15 .5v15a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V10a.5.5 0 0 1 .342-.474L6 7.64V4.5a.5.5 0 0 1 .276-.447l8-4a.5.5 0 0 1 .487.022M6 8.694 1 10.36V15h5zM7 15h2v-1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V15h2V1.309l-7 3.5z"/>
-                                <path d="M2 11h1v1H2zm2 0h1v1H4zm-2 2h1v1H2zm2 0h1v1H4zm4-4h1v1H8zm2 0h1v1h-1zm-2 2h1v1H8zm2 0h1v1h-1zm2-2h1v1h-1zm0 2h1v1h-1zM8 7h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zM8 5h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zm0-2h1v1h-1z"/>
-                              </svg>
-                              {result.organization}
-                            </i>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button className="custom-view" onClick={() => goToProfile(result.username)}>
+                  
+                  <div className="d-flex align-items-center" style={{marginRight: '30px'}}>
+  
+  <img 
+    src={result.profilePicture || DefaultImage}
+    alt={`${result.fullName}'s profile`} 
+    style={{ width: '50px', height: '50px', borderRadius: '50%', marginRight: '15px' }} 
+  />
+  <div>
+    <strong style={{color: 'white'}}>{result.fullName}</strong>
+    <span><i style={{color: 'gray', marginLeft: '10px'}}>'{result.username}'</i></span>
+    <br />
+    {result.organization && (
+      <span>
+        <i style={{ color: 'gray' }}>
+          <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="grey" className="bi bi-buildings" viewBox="0 0 16 16">
+            <path d="M14.763.075A.5.5 0 0 1 15 .5v15a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V10a.5.5 0 0 1 .342-.474L6 7.64V4.5a.5.5 0 0 1 .276-.447l8-4a.5.5 0 0 1 .487.022M6 8.694 1 10.36V15h5zM7 15h2v-1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V15h2V1.309l-7 3.5z"/>
+            <path d="M2 11h1v1H2zm2 0h1v1H4zm-2 2h1v1H2zm2 0h1v1H4zm4-4h1v1H8zm2 0h1v1H8zm-2 2h1v1H8zm2 0h1v1H8zm2-2h1v1H8zm0 2h1v1H8zM8 7h1v1H8zm2 0h1v1H8zm2 0h1v1H8zM8 5h1v1H8zm2 0h1v1H8zm2 0h1v1H8zm0-2h1v1H8z"/>
+          </svg>
+          {result.organization}
+        </i>
+      </span>
+    )}
+  </div>
+  <button className="custom-view" style={{marginLeft:'30px'}} onClick={() => goToProfile(result.username)}>
                       View Profile ↗︎
                     </button>
-                  </div>
+</div>
+
 
                   {/* Project Display Section */}
                   {searchType.value === "projects" && result.matchedProject && (
                     <div style={{ marginTop: '20px', width: '100%' }}>
                       <div style={{ marginBottom: '20px' }}>
-                        <h5 style={{color: 'black'}}>{result.matchedProject.title}</h5>
-                        <p style={{color: 'black'}}>{result.matchedProject.description}</p>
+                        <h5 style={{color: 'white'}}>{result.matchedProject.title}</h5>
+                        <p style={{color: 'grey'}}>{result.matchedProject.description}</p>
                         
                         {/* Topics */}
                         {result.matchedProject.topics && result.matchedProject.topics.length > 0 && (

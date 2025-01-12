@@ -32,14 +32,14 @@ const Footer = () => {
     return (
         <div>
             <div className='last-container'>
-                <img className="img-fluid" id="navbar-logo" src={FooterIcon} alt='ResDex Logo' />
-                <p className='primary medium monarque' style={{marginLeft: '15px', marginTop: '12px'}}> ResDex</p>
+                <h1 className='primary'>⎉</h1>
+                <p className='primary medium monarque' style={{marginLeft: '15px', marginTop: '12px'}}> QONNECTR</p>
             </div>
             
             <div>
                 <div className='row d-flex justify-content-center' style={{lineHeight: '40px'}}>
                     <div className='col-md-2 text-center'>
-                        <Link className='link' to="/about"><span className='primary'>About</span></Link>
+                        <Link className='link' to="/"><span className='primary'>Home</span></Link>
                     </div>
                     <div className='col-md-2 text-center'>
                         <Link className='link' to="/team"><span className='primary'>Team</span></Link>
@@ -55,7 +55,7 @@ const Footer = () => {
             <div className="center primary">
                 <br></br>
                 <br></br>
-                ©2024, ResDex. All Rights Reserved.
+                ©2025, QONNECTR. All Rights Reserved.
             </div>
             <div className="center text-center reduce primary">
                 By using this website, you accept our Terms of Use and Privacy Policy.

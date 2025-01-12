@@ -20,11 +20,26 @@ const Create = () => {
   const [collaboratorOptions, setCollaboratorOptions] = useState([]);
 
   const interestOptions = [
-    { value: 'Technology', label: 'Technology' },
-    { value: 'Healthcare', label: 'Healthcare' },
-    { value: 'Finance', label: 'Finance' },
-    { value: 'Construction', label: 'Construction' },
-    { value: 'Engineering', label: 'Engineering' },
+    { value: 'Frontend', label: 'Frontend Development' },
+    { value: 'Backend', label: 'Backend Development' },
+    { value: 'Mobile', label: 'Mobile Development' },
+    { value: 'DevOps', label: 'DevOps & Cloud' },
+    { value: 'AI', label: 'Artificial Intelligence' },
+    { value: 'Machine-Learning', label: 'Machine Learning' },
+    { value: 'Data-Science', label: 'Data Science' },
+    { value: 'Blockchain', label: 'Blockchain' },
+    { value: 'Cybersecurity', label: 'Cybersecurity' },
+    { value: 'IoT', label: 'Internet of Things' },
+    { value: 'AR-VR', label: 'AR/VR Development' },
+    { value: 'Game-Dev', label: 'Game Development' },
+    { value: 'UI-UX', label: 'UI/UX Design' },
+    { value: 'Database', label: 'Database Systems' },
+    { value: 'Network', label: 'Network Engineering' },
+    { value: 'Embedded', label: 'Embedded Systems' },
+    { value: 'Quantum', label: 'Quantum Computing' },
+    { value: 'Robotics', label: 'Robotics' },
+    { value: 'NLP', label: 'Natural Language Processing' },
+    { value: 'Computer-Vision', label: 'Computer Vision' }
   ];
 
   const CustomOption = (props) => {
