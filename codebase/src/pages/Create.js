@@ -221,22 +221,22 @@ const Create = () => {
         <div className='col-md-7 box'>
           <div className='row'>
             <h1 className='col-md-11 primary monarque mb-4' style={{ overflowWrap: 'break-word' }}>{Title}</h1>
-            <p className='col-md-11 primary text-muted mb-4' style={{ overflowWrap: 'break-word' }}>{description}</p>
+            <p className='col-md-11 mb-4' style={{ overflowWrap: 'break-word', color: 'grey' }}>{description}</p>
             {selectedTopics.length > 0 && (
               <div style={{marginBottom: '30px'}}>
-                <svg style={{ marginRight: '10px' }} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="primary" className="bi bi-tags-fill" viewBox="0 0 16 16">
+                <svg style={{ marginRight: '10px' }} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-tags-fill" viewBox="0 0 16 16">
                   <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
                   <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043z"/>
                 </svg>
                 {selectedTopics.map((topic, index) => (
-                  <span key={index} className="interest-pill">
+                  <span key={index} className="interest-pill-white">
                     {topic.label}
                   </span>
                 ))}
               </div>
             )}
             <Form className="contact-form">
-              <Form.Group className="mb-3" style={{ borderTop: '1px solid #1a1a1a', paddingTop: '30px' }} controlId="formBasicFullName">
+              <Form.Group className="mb-3" style={{ borderTop: '1px solid white', paddingTop: '30px' }} controlId="formBasicFullName">
                 <Form.Label className='primary'>Project Title</Form.Label>
                 <Form.Control
                   type="text"
@@ -260,7 +260,7 @@ const Create = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label style={{ color: 'black' }}>Relevant Topics</Form.Label>
+                <Form.Label style={{ color: 'white' }}>Relevant Topics</Form.Label>
                 <Select
                   isMulti
                   name="topics"

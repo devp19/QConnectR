@@ -489,67 +489,72 @@ const Profile = () => {
             <div style={{ display: 'none' }}>
               <QRCode id="qr-code" value={qrData} size={150} />
             </div>
-
+<div className='row d-flex justify-content-center'>
             {/* Profile Picture Section */}
-            <div 
-              style={{
-                display: 'flex',
-                marginLeft: '360px',
-                width: '150px',
-                height: '150px',
-                borderRadius: '50%',
-                position: 'relative',
-                overflow: 'hidden',
-                backgroundColor: '#ccc',
-                cursor: isOwnProfile ? 'pointer' : 'default',
-              }}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              onClick={isOwnProfile ? handleProfilePictureClick : undefined}
-            >
-              {profilePicture ? (
-                <img
-                  src={profilePicture}
-                  alt="Profile"
-                  style={{
-                    width: '150px',
-                    height: '150px',
-                    objectFit: 'cover'
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: '150px',
-                    height: '150px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  No Image
-                </div>
-              )}
-              {isOwnProfile && isHovering && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    color: 'white',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Change Picture
-                </div>
-              )}
-            </div>
+            <div
+  style={{
+    display: 'flex',
+    justifyContent: 'center', // Horizontally centers the content
+    alignItems: 'center', // Vertically centers the content
+    width: '150px',
+    height: '150px',
+    borderRadius: '50%',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: '#ccc',
+    cursor: isOwnProfile ? 'pointer' : 'default',
+  }}
+  onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
+  onClick={isOwnProfile ? handleProfilePictureClick : undefined}
+>
+  {profilePicture ? (
+    <img
+      src={profilePicture}
+      alt="Profile"
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover', // Ensures the image covers the whole area without distortion
+        display: 'block', // Removes any space below the image
+      }}
+    />
+  ) : (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: '#888',
+      }}
+    >
+      No Image
+    </div>
+  )}
+  {isOwnProfile && isHovering && (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+      }}
+    >
+      Change Picture
+    </div>
+  )}
+</div>
+</div>
+
 
             {/* Profile Information */}
             <div className='row'>
@@ -646,19 +651,19 @@ const Profile = () => {
                   marginRight:'150px'
                 }} className='d-flex justify-content-center'>
                   <div className='row mt-3' style={{ width: '100%' }}>
-                    <div className="text-white mt-3" style={{borderLeft: '1px solid #1a1a1a', paddingLeft: '30px'}}>
+                    <div className="text-white mt-3" style={{borderLeft: '1px solid white', paddingLeft: '30px'}}>
                       <h5 className='primary'>{paper.title}</h5>
                       <p className='primary'>{paper.description}</p>
 
                       {/* Topics */}
                       {paper.topics && paper.topics.length > 0 && (
                         <div style={{ marginBottom: '10px' }}>
-                          <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="primary" className="bi bi-tags-fill" viewBox="0 0 16 16">
+                          <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" className="bi bi-tags-fill" viewBox="0 0 16 16">
                             <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
                             <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043z"/>
                           </svg>
                           {paper.topics.map((topic, idx) => (
-                            <span key={idx} className="interest-pill">
+                            <span key={idx} className="interest-pill-white">
                               {topic}
                             </span>
                           ))}
@@ -705,7 +710,7 @@ const Profile = () => {
   {isOwnProfile && (
     <div 
       onClick={() => {
-        if (window.confirm('Are you sure you want to delete this research paper?')) {
+        if (window.confirm('Are you sure you want to delete this project?')) {
           // Add delete functionality here
           const updatedResearch = profileUser.research.filter(p => p.id !== paper.id);
           const userDocRef = doc(db, 'users', auth0User.sub);
@@ -735,7 +740,7 @@ const Profile = () => {
         xmlns="http://www.w3.org/2000/svg" 
         width="16" 
         height="16" 
-        fill="primary" 
+        fill="white" 
         className="bi bi-trash" 
         viewBox="0 0 16 16"
       >
@@ -752,7 +757,8 @@ const Profile = () => {
             ))
         ) : (
           <div className="text-center primary" style={{marginTop: '40px'}}>
-            <a className='primary' href='https://qonnectr.vercel.app/create'>⨁ Add Project</a>
+            <a className='primary' target='_blank' href='https://qonnectr.vercel.app/create'>⨁ Add Project</a>
+            {/* <a className='primary' target='_blank' href='http://localhost:3000/create'>⨁ Add Project</a> */}
           </div>
         )}
       </div>
