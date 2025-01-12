@@ -25,31 +25,53 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-let serviceAccount;
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-} else {
-  // For local development
-  serviceAccount = require('./secrets/connectq-e3fb5-firebase-adminsdk-czm27-593590f7d1.json');
-}
+// Initialize Firebase Admin SDK
+const initializeFirebase = () => {
+  try {
+    let serviceAccount;
+    
+    if (process.env.NODE_ENV === 'production') {
+      // For production (Render) - using the mounted secret file
+      serviceAccount = require('/etc/secrets/firebase-service-account.json');
+      console.log('Using production Firebase credentials');
+    } else {
+      // For local development
+      serviceAccount = require('./secrets/firebase-service-account.json');
+      console.log('Using local Firebase credentials');
+    }
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://connectq-e3fb5-default-rtdb.firebaseio.com/',
-});
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: 'https://connectq-e3fb5-default-rtdb.firebaseio.com/',
+    });
+
+    console.log('Firebase Admin SDK initialized successfully');
+  } catch (error) {
+    console.error('Error initializing Firebase:', error);
+    throw error;
+  }
+};
+
+// Initialize Firebase
+initializeFirebase();
 
 const db = admin.firestore();
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Server is running' });
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Test endpoint for CORS
 app.get('/test', (req, res) => {
   res.json({ 
     message: 'CORS is working',
-    origin: req.headers.origin 
+    origin: req.headers.origin,
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -71,6 +93,18 @@ app.post('/api/signup', async (req, res) => {
   }
 
   try {
+    // Check if username already exists
+    const usernameDoc = await db.collection('usernames')
+      .doc(displayName.toLowerCase().replace(/\s+/g, ''))
+      .get();
+
+    if (usernameDoc.exists) {
+      return res.status(400).json({
+        message: 'Username already exists',
+        error: 'duplicate_username'
+      });
+    }
+
     // Obtain access token for Auth0 Management API
     const tokenResponse = await axios.post(
       `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
