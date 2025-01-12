@@ -2,7 +2,6 @@
 import React from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
-import About from './pages/About';
 import Navbar from './pages/Navbar';
 import Login from './pages/Login';
 import Footer from './pages/Footer';
@@ -14,8 +13,6 @@ import Profile from './pages/Profile';
 import Create from './pages/Create';
 import Recovery from './pages/recovery';
 import Success from './pages/Success';
-import ReleaseDocs from './pages/ReleaseDocs';
-import V101 from './Releases/V101';
 import Notifications from './pages/Notifications';
 import AuthStatus from './pages/AuthStatus';
 import ProtectedRoute from './pages/ProtectedRoute';
@@ -40,7 +37,6 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/recovery" element={<Recovery />} />
@@ -49,8 +45,6 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/qr" element={<QR />} />
         <Route path="/success" element={<Success />} />
-        <Route path="/releasedocs" element={<ReleaseDocs />} />
-        <Route path="/releasedocs/v101" element={<V101 />} />
         <Route path="/test" element={<AuthStatus />} />
 
         {/* Protected routes */}

@@ -1,7 +1,6 @@
 // src/pages/Navbar.js
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import NavbarLogo from '../images/logo-icon.png';
 import { useAuth0 } from '@auth0/auth0-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig'; // Adjust the path to your firebaseConfig
@@ -39,9 +38,10 @@ const Navbar = () => {
   const handleLogout = () => {
     const confirmLogout = window.confirm('Are you sure you want to logout?');
     if (confirmLogout) {
-      logout({ returnTo: window.location.origin });
+      logout({ returnTo: 'https://qonnectr.vercel.app' });
     }
   };
+  
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light pt-4">

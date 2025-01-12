@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import Logo from '../images/index.png';
+import Logo from '../images/faviconpls.png';
 
 const Login = () => {
   const { loginWithRedirect, isAuthenticated, user, isLoading } = useAuth0();

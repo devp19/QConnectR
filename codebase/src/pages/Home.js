@@ -1,13 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../images/dark-transparent.png';
 import MLH from '../images/mlh-logo-white.png'
 import DELTA from '../images/original.png';
 import AUTH0 from '../images/auth0-logo-white.png';
 import FIREBASE from '../images/logo-firebase.webp';
 import VERCEL from '../images/vercel-text.svg';
 import AWS from '../images/aws-brand.svg';
-import Dev from '../images/dev.png';
 import Empty from '../images/empty.webp';
 import Alert from 'react-bootstrap/Alert';
 
