@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { auth, db } from '../firebaseConfig'; // Assuming you have firebaseConfig set up
+import { db } from '../firebaseConfig';
 import { components } from 'react-select';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const Create = () => {
+  const { user: auth0User, isAuthenticated } = useAuth0();
+  const navigate = useNavigate();
+
+  const [description, setDescription] = useState('');
+  const [Title, setTitle] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedCollaborators, setSelectedCollaborators] = useState([]);
+  const [collaboratorOptions, setCollaboratorOptions] = useState([]);
+
   const interestOptions = [
     { value: 'Technology', label: 'Technology' },
     { value: 'Healthcare', label: 'Healthcare' },
@@ -15,24 +27,10 @@ const Create = () => {
     { value: 'Engineering', label: 'Engineering' },
   ];
 
-  const navigate = useNavigate();
-  const [description, setDescription] = useState('');
-  const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [error, setError] = useState('');
-  const [Title, setTitle] = useState('');
-  const [success, setSuccess] = useState('');
-  const [selectedTopics, setSelectedTopics] = useState([]);
-  const [selectedCollaborators, setSelectedCollaborators] = useState([]);
-  const [collaboratorOptions, setCollaboratorOptions] = useState([]);
-
-
-
   const CustomOption = (props) => {
     return (
       <components.Option {...props}>
-        <div  style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <img
             src={props.data.profilePicture || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
             alt={`${props.data.label}'s profile`}
@@ -43,7 +41,6 @@ const Create = () => {
       </components.Option>
     );
   };
-
 
   const CustomMultiValue = (props) => {
     return (
@@ -59,10 +56,6 @@ const Create = () => {
       </components.MultiValue>
     );
   };
-
-
-
-
 
   const customStyles = {
     option: (provided, state) => ({
@@ -93,18 +86,16 @@ const Create = () => {
     }),
   };
 
-  // Function to load collaborators when the select box is opened
   const loadCollaborators = async () => {
     if (collaboratorOptions.length === 0) {
       try {
-        const user = auth.currentUser;
-        if (user) {
-          const userDocRef = doc(db, 'users', user.uid);
+        if (isAuthenticated && auth0User) {
+          const userDocRef = doc(db, 'users', auth0User.sub);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             const userData = userDoc.data();
             const researchFellows = userData.following || [];
-  
+
             const fellowPromises = researchFellows.map(async (fellowId) => {
               const fellowDocRef = doc(db, 'users', fellowId);
               const fellowDoc = await getDoc(fellowDocRef);
@@ -113,13 +104,12 @@ const Create = () => {
                 return {
                   value: fellowId,
                   label: fellowData.fullName || 'Unknown',
-                  profilePicture: fellowData.profilePicture, // Ensure this field is available
+                  profilePicture: fellowData.profilePicture,
                 };
-              } else {
-                return null;
               }
+              return null;
             });
-  
+
             const optionsArray = await Promise.all(fellowPromises);
             const options = optionsArray.filter((option) => option !== null);
             setCollaboratorOptions(options);
@@ -127,42 +117,74 @@ const Create = () => {
         }
       } catch (error) {
         console.error("Error fetching research fellows:", error);
+        setError("Failed to load collaborators. Please try again.");
       }
     }
   };
 
-
-  
-
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-  
+    e.preventDefault();
+
+    if (!isAuthenticated || !auth0User) {
+      setError('You must be logged in to create research');
+      return;
+    }
+
+    if (!Title.trim() || !description.trim()) {
+      setError('Title and description are required');
+      return;
+    }
+
     try {
-      const user = auth.currentUser;
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const username = userData.username; // Ensure this field is available
-  
-          const newResearch = {
-            title: Title,
-            description: description,
-            interests: selectedTopics.map(topic => topic.label),
-            collaborators: selectedCollaborators.map(collaborator => collaborator.label),
-            createdAt: new Date(),
-          };
-  
-          // Update the user's document with the new research entry
-          await updateDoc(userDocRef, {
-            collaboratedResearch: arrayUnion(newResearch)
+      const userDocRef = doc(db, 'users', auth0User.sub);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // Create new research object
+        const newResearch = {
+          id: Date.now().toString(),
+          title: Title,
+          description: description,
+          topics: selectedTopics.map(topic => topic.label),
+          collaborators: selectedCollaborators.map(collaborator => ({
+            id: collaborator.value,
+            name: collaborator.label,
+            profilePicture: collaborator.profilePicture
+          })),
+          createdAt: new Date().toISOString(),
+          createdBy: {
+            id: auth0User.sub,
+            name: userData.fullName,
+            profilePicture: userData.profilePicture
+          }
+        };
+
+        // Update user's research array
+        await updateDoc(userDocRef, {
+          research: arrayUnion(newResearch)
+        });
+
+        // Update collaborators' documents
+        for (const collaborator of selectedCollaborators) {
+          const collaboratorRef = doc(db, 'users', collaborator.value);
+          await updateDoc(collaboratorRef, {
+            collaborations: arrayUnion({
+              ...newResearch,
+              role: 'collaborator'
+            })
           });
-  
-          setSuccess('Research created successfully!');
-          setError('');
-          navigate(`/profile/${username}`); // Use the actual username
         }
+
+        setSuccess('Research created successfully!');
+        setError('');
+        
+        // Navigate to profile
+        const username = userData.username || userData.displayName;
+        setTimeout(() => {
+          navigate(`/profile/${username}`);
+        }, 1500);
       }
     } catch (error) {
       console.error("Error saving research:", error);
@@ -171,6 +193,9 @@ const Create = () => {
     }
   };
 
+  if (!isAuthenticated) {
+    return <div className="primary text-center mt-5">Please log in to create research.</div>;
+  }
 
   return (
     <div>
@@ -210,11 +235,13 @@ const Create = () => {
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label className='primary'>Description</Form.Label>
                 <Form.Control
-                  type="text"
+                  as="textarea"
+                  rows={3}
                   placeholder="Enter Description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
+                  maxLength="500"
                 />
               </Form.Group>
               <Form.Group className="mb-3">
@@ -237,27 +264,40 @@ const Create = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3">
-        <Form.Label style={{ color: 'black' }}>Collaborators</Form.Label>
-        <Select
-          isMulti
-          name="collaborators"
-          options={collaboratorOptions}
-          className="basic-multi-select primary"
-          classNamePrefix="select"
-          value={selectedCollaborators}
-          onChange={(selected) => setSelectedCollaborators(selected)}
-          placeholder="Select collaborators"
-          styles={customStyles}
-          onMenuOpen={loadCollaborators} // Load collaborators when menu opens
-  components={{ Option: CustomOption, MultiValue: CustomMultiValue }} // Use the custom MultiValue component
-
-        />
-      </Form.Group>
-              {error && <p style={{ color: 'red' }}>{error}</p>}
-              {success && <p style={{ color: 'green' }}>{success}</p>}
-              <Button className="custom" style={{ marginBottom: '20px' }} type="submit" onClick={handleSubmit}>
-  Create
-</Button>
+                <Form.Label style={{ color: 'black' }}>Collaborators</Form.Label>
+                <Select
+                  isMulti
+                  name="collaborators"
+                  options={collaboratorOptions}
+                  className="basic-multi-select primary"
+                  classNamePrefix="select"
+                  value={selectedCollaborators}
+                  onChange={(selected) => setSelectedCollaborators(selected)}
+                  placeholder="Select collaborators"
+                  styles={customStyles}
+                  onMenuOpen={loadCollaborators}
+                  components={{ Option: CustomOption, MultiValue: CustomMultiValue }}
+                />
+              </Form.Group>
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="alert alert-success" role="alert">
+                  {success}
+                </div>
+              )}
+              <Button 
+                className="custom" 
+                style={{ marginBottom: '20px' }} 
+                type="submit" 
+                onClick={handleSubmit}
+                disabled={!Title.trim() || !description.trim()}
+              >
+                Create
+              </Button>
             </Form>
           </div>
         </div>

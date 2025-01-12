@@ -337,7 +337,22 @@ const Profile = () => {
     fetchProfileData();
   }, [fetchProfileData]);
 
+
+
+
   
+  useEffect(() => {
+    console.log('Profile User Data:', profileUser);
+    console.log('Research Papers:', profileUser?.research);
+    console.log('Collaborations:', profileUser?.collaborations);
+  }, [profileUser]);
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (profileUser?.uid) {
@@ -425,6 +440,13 @@ const Profile = () => {
       },
     }),
   };
+
+
+
+
+
+
+
 
   return (
     <div>
@@ -560,9 +582,117 @@ const Profile = () => {
                 )}
               </div>
             </div>
+
+          
+
           </div>
+
+          
+        </div>
+
+
+        
+      </div>
+
+      <div className='mt-5' style={{marginLeft: '150px', marginRight: '150px'}}>
+  <div style={{borderRadius: '5px', margin: '0px'}} className='row d-flex justify-content-center'>
+    <div className='col-md-12 box'>
+      <div className='row' style={{marginTop: "-10px"}}>
+        <div className='col-md d-flex align-items-center'>
+          <h4 className='primary p-2'>Shared Projects</h4>
         </div>
       </div>
+
+      <div style={{
+        borderRadius: '5px',
+        padding: '20px',
+        paddingBottom: '50px',
+        border: '1px solid white',
+        marginBottom: '10px',
+      }} className='row justify-content-center align-items-center'>
+        {profileUser.research && profileUser.research.length > 0 ? (
+          // Sort papers by date and map through them
+          [...profileUser.research]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map((paper, index) => (
+              <div key={index} style={{
+                marginBottom: index !== profileUser.research.length - 1 ? '30px' : '0',
+                borderBottom: index !== profileUser.research.length - 1 ? '1px solid #1a1a1a' : 'none',
+                paddingBottom: '30px'
+              }}>
+                <div style={{
+                  marginLeft:'150px',
+                  marginRight:'150px'
+                }} className='d-flex justify-content-center'>
+                  <div className='row mt-3' style={{ width: '100%' }}>
+                    <div className="text-white mt-3" style={{borderLeft: '1px solid #1a1a1a', paddingLeft: '30px'}}>
+                      <h5 className='primary'>{paper.title}</h5>
+                      <p className='primary'>{paper.description}</p>
+
+                      {/* Topics */}
+                      {paper.topics && paper.topics.length > 0 && (
+                        <div style={{ marginBottom: '10px' }}>
+                          <svg style={{marginRight: '10px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="primary" className="bi bi-tags-fill" viewBox="0 0 16 16">
+                            <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                            <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043z"/>
+                          </svg>
+                          {paper.topics.map((topic, idx) => (
+                            <span key={idx} className="interest-pill">
+                              {topic}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Collaborators */}
+                      {paper.collaborators && paper.collaborators.length > 0 && (
+                        <div style={{ marginBottom: '20px' }}>
+                          <h6 className='primary'>Collaborators:</h6>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            {paper.collaborators.map((collaborator, idx) => (
+                              <div key={idx} style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                background: '#1a1a1a',
+                                padding: '5px 10px',
+                                borderRadius: '20px'
+                              }}>
+                                <img
+                                  src={collaborator.profilePicture || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
+                                  alt={collaborator.name}
+                                  style={{
+                                    width: '25px',
+                                    height: '25px',
+                                    borderRadius: '50%',
+                                    marginRight: '8px'
+                                  }}
+                                />
+                                <span className='primary'>{collaborator.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Created Date */}
+                      <small className='primary' style={{ opacity: 0.7 }}>
+                        Created: {new Date(paper.createdAt).toLocaleDateString()}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+        ) : (
+          <div className="text-center primary" style={{marginTop: '40px'}}>
+            No Research Papers Created
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Profile Picture Upload */}
       {isOwnProfile && (
@@ -573,6 +703,12 @@ const Profile = () => {
           style={{ display: 'none' }}
         />
       )}
+
+
+
+
+
+
 
             {/* Edit Profile Modal */}
             <Modal show={isModalOpen} onHide={handleModalClose} className='box'>
@@ -711,52 +847,14 @@ const Profile = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Research Section */}
-      <div className='mt-5'>
-        <div style={{borderRadius: '5px', margin: '0px'}} className='row d-flex justify-content-center'>
-          <div className='col-md-12 box'>
-            <div className='row' style={{marginTop: "-10px"}}>
-              <div className='col-md d-flex align-items-center'>
-                <h4 className='primary'>Completed Research</h4>
-              </div>
-              <div className='col-md' style={{position: 'relative', textAlign: 'right'}}>
-                {isOwnProfile && (
-                  <PDFUpload 
-                    user={auth0User}
-                    onUploadComplete={() => fetchPDFs(auth0User.sub)}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* PDF Display Section */}
-            <div style={{
-              borderRadius: '5px',
-              padding: '20px',
-              paddingBottom: '50px',
-              border: '1px solid white',
-              marginBottom: '10px',
-            }} className='row justify-content-center align-items-center'>
-              {pdfs.length > 0 ? (
-                <Carousel>
-                  {pdfs.map((pdf, index) => (
-                    <Carousel.Item key={index}>
-                      {/* PDF Display Content */}
-                      {/* ... Your existing PDF display code ... */}
-                    </Carousel.Item>
-                  ))}
-                </Carousel>
-              ) : (
-                <div className="text-center primary" style={{marginTop: '40px'}}>
-                  No Documents Uploaded
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
+
+
+
   );
 };
+
+
+
 
 export default Profile;
