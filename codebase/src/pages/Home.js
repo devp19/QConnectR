@@ -6,8 +6,6 @@ import AUTH0 from '../images/auth0-logo-white.png';
 import FIREBASE from '../images/logo-firebase.webp';
 import VERCEL from '../images/vercel-text.svg';
 import AWS from '../images/aws-brand.svg';
-import Empty from '../images/empty.webp';
-import Alert from 'react-bootstrap/Alert';
 
 
 const Home = () => {
@@ -48,7 +46,6 @@ const Home = () => {
 
         <div>
           <div className='row justify-content-center d-flex display fade-in'>
-            {/* <img src={Logo} style={{ maxWidth: '70px', fill: 'black' }} alt='resdex-logo'></img> */}
             <h1 className='primary akros text-center'>⎉</h1>
           </div>
           <div className='row text-center fade-in'>
@@ -56,14 +53,9 @@ const Home = () => {
           </div>
           <div className='row text-center fade-in'>
             <p className='akros primary title'>QonnectR</p>
-            {/* <p className='akros title primary' style={{ marginTop: '-40px' }}><span className='primary title monarque'>–made </span>easy</p> */}
           </div>
 
-          {/* <div className='center pt-4 fade-in'>
-            <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="primary">
-              <path d="M11 21.883l-6.235-7.527-.765.644 7.521 9 7.479-9-.764-.645-6.236 7.529v-21.884h-1v21.883z"/>
-            </svg>
-          </div> */}
+         
           <div className='center pt-4 fade-in'>
             <p className='monarque primary secondary'>" Where Projects Find People "</p>
           </div>
@@ -98,7 +90,6 @@ const Home = () => {
       </div>
 
       <div className='container fade-in top'>
-        {/* <p className='primary center top monarque' style={{ fontSize: '25px', marginBottom: '30px' }}>A student led initiative from</p> */}
         <div className='row d-flex justify-content-center fade-in'>
         <div class="scroller box " data-direction="right" data-speed="slow">
             <div class="scroller__inner mb-4">
@@ -123,9 +114,7 @@ const Home = () => {
           <br></br>
           Building a <span className='monarque primary'><strong>–</strong>community</span>  one step <br></br>at a time!
           <br></br>
-            <div className='smaller-text' style={{marginTop: '60px'}}>
-              <a className='custom-view' to='/signup'>Sign Up</a>
-            </div>
+              <a className='custom-view' href='https://qonnectr.vercel.app/signup'>Sign Up</a>
           </div>
         </div>
       </div>

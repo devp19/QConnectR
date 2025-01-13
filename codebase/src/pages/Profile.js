@@ -5,7 +5,6 @@ import { db } from '../firebaseConfig';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useAuth0 } from '@auth0/auth0-react';
 import ProfilePictureUpload from './ProfilePictureUpload';
-import PDFUpload from './PDFUpload';
 import { s3 } from '../awsConfig';
 import Select from 'react-select';
 import Carousel from 'react-bootstrap/Carousel';

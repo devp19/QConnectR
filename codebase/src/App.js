@@ -13,7 +13,6 @@ import Profile from './pages/Profile';
 import Create from './pages/Create';
 import Recovery from './pages/recovery';
 import Success from './pages/Success';
-import Notifications from './pages/Notifications';
 import AuthStatus from './pages/AuthStatus';
 import ProtectedRoute from './pages/ProtectedRoute';
 import QR from './pages/QR'
@@ -60,12 +59,7 @@ function App() {
               <Create />
           }
         />
-        <Route
-          path="/notifications"
-          element={
-              <Notifications />
-          }
-        />
+       
         {/* Add other protected routes similarly */}
       </Routes>
       <Footer />
