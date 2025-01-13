@@ -190,7 +190,7 @@ const Create = () => {
           });
         }
 
-        setSuccess('Research created successfully!');
+        setSuccess('Project created successfully!');
         setError('');
         
         // Navigate to profile

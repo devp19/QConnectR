@@ -615,21 +615,22 @@ const Profile = () => {
           
         </div>
 
+        <div className='mt-5'>
+  <div style={{borderRadius: '5px'}} className='row d-flex justify-content-center'>
+    <div className='col-md-9 box'>
+      <div className='row d-flex' style={{marginTop: "-10px"}}>
+        <div className='col-md align-items-center' style={{padding: 'none'}}>
+          
+          <div className='row primary p-2'>
+            <h4 className='col-md primary'>
+              Shared Projects      
 
-        
-      </div>
-
-      <div className='mt-5' style={{marginLeft: '150px', marginRight: '150px'}}>
-  <div style={{borderRadius: '5px', margin: '0px'}} className='row d-flex justify-content-center'>
-    <div className='col-md-12 box'>
-      <div className='row' style={{marginTop: "-10px"}}>
-        <div className='col-md-5 d-flex align-items-center'>
-          <h4 className='primary p-2'>Shared Projects            
           </h4>
+          <a className='col-md-3 text-center custom-view justify-content-end' target='_blank' href='https://qonnectr.vercel.app/create'>Add Project</a>
+
+</div>
           </div>
-                <div className='col-md d-flex text-center m-2 justify-content-end'>
-          <a className='custom-view' target='_blank' href='https://qonnectr.vercel.app/create'>Add Project</a>
-        </div>
+                
       </div>
 
       <div style={{
@@ -648,10 +649,7 @@ const Profile = () => {
                 borderBottom: index !== profileUser.research.length - 1 ? '1px solid white' : 'none',
                 paddingBottom: '30px'
               }}>
-                <div style={{
-                  marginLeft:'150px',
-                  marginRight:'150px'
-                }} className='d-flex justify-content-center'>
+                <div className='d-flex justify-content-center'>
                   <div className='row mt-3' style={{ width: '100%' }}>
                     <div className="text-white mt-3" style={{borderLeft: '1px solid white', paddingLeft: '30px'}}>
                       <h5 className='primary'>{paper.title}</h5>
@@ -746,6 +744,10 @@ const Profile = () => {
     </div>
   </div>
 </div>
+        
+      </div>
+
+      
 
 
       {/* Profile Picture Upload */}
