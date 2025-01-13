@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
-import { collection, getDocs, query, limit } from "firebase/firestore";
+import React, { useState, useEffect } from 'react';
+import { collection, query, onSnapshot, limit } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import Select, { components } from 'react-select';
 import DefaultImage from '../images/empty.webp';
 
-const DropdownIndicator = (props) => {
-  return (
-    <components.DropdownIndicator {...props}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="white" viewBox="0 0 16 16">
-        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-      </svg>
-    </components.DropdownIndicator>
-  );
-};
+const DropdownIndicator = (props) => (
+  <components.DropdownIndicator {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="white" viewBox="0 0 16 16">
+      <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+    </svg>
+  </components.DropdownIndicator>
+);
 
 const Search = () => {
   const [searchType, setSearchType] = useState({ value: "users", label: "Users" });
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const navigate = useNavigate();
 
@@ -27,6 +26,20 @@ const Search = () => {
     { value: "projects", label: "Projects" }
   ];
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const usersCollection = collection(db, "users");
+      const unsubscribe = onSnapshot(query(usersCollection, limit(50)), (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setAllUsers(data);
+      });
+
+      return () => unsubscribe();
+    };
+
+    fetchData();
+  }, []);
+
   const handleSearchTypeChange = (selectedOption) => {
     setSearchType(selectedOption);
   };
@@ -34,51 +47,50 @@ const Search = () => {
   const handleSearchInputChange = (event) => {
     const newSearchTerm = event.target.value;
     setSearchTerm(newSearchTerm);
+
     if (debounceTimeout) {
       clearTimeout(debounceTimeout);
     }
+
     const newTimeout = setTimeout(() => {
-      handleSearch(newSearchTerm);
+      filterResults(newSearchTerm);
     }, 300);
+
     setDebounceTimeout(newTimeout);
   };
 
-  const handleSearch = async (term) => {
-    if (term.trim() !== "") {
-      const processedTerm = term.toLowerCase();
-      const usersCollection = collection(db, "users");
-      const q = query(usersCollection, limit(10));
-      const querySnapshot = await getDocs(q);
-      const allUsers = querySnapshot.docs.map(doc => doc.data());
-      let filteredResults;
+  const filterResults = (term) => {
+    const processedTerm = term.toLowerCase();
 
-      if (searchType.value === "users") {
-        filteredResults = allUsers.filter(user => 
-          user.username.toLowerCase().includes(processedTerm) || 
-          user.fullName.toLowerCase().includes(processedTerm)
-        );
-      } else if (searchType.value === "projects") {
-        filteredResults = allUsers.flatMap(user => 
-          (user.research || [])  // Changed from pdfs to research
-            .filter(project => 
-              project.title.toLowerCase().includes(processedTerm) || 
-              project.description.toLowerCase().includes(processedTerm) ||
-              (project.topics && project.topics.some(topic => 
-                topic.toLowerCase().includes(processedTerm)
-              ))
-            )
-            .map(project => ({ ...user, matchedProject: project }))  // Changed from matchedPdf to matchedProject
-        );
-      }
-      setResults(filteredResults);
-    } else {
+    if (term.trim() === "") {
       setResults([]);
+      return;
+    }
+
+    if (searchType.value === "users") {
+      const filteredUsers = allUsers.filter(user => 
+        user.username?.toLowerCase().includes(processedTerm) || 
+        user.fullName?.toLowerCase().includes(processedTerm)
+      );
+      setResults(filteredUsers);
+    } else if (searchType.value === "projects") {
+      const filteredProjects = allUsers.flatMap(user => 
+        (user.research || []).filter(project => 
+          project.title?.toLowerCase().includes(processedTerm) || 
+          project.description?.toLowerCase().includes(processedTerm) ||
+          (project.topics && project.topics.some(topic => 
+            topic.toLowerCase().includes(processedTerm)
+          ))
+        ).map(project => ({ ...user, matchedProject: project }))
+      );
+      setResults(filteredProjects);
     }
   };
 
   const goToProfile = (username) => {
     navigate(`/profile/${username}`);
   };
+
 
   const customStyles = {
     control: (provided) => ({
@@ -115,6 +127,8 @@ const Search = () => {
     indicatorSeparator: () => ({ display: 'none' }),
   };
 
+
+  
   return (
     <div className="container">
       <div className='row top'>
@@ -181,14 +195,12 @@ const Search = () => {
 </div>
 
 
-                  {/* Project Display Section */}
                   {searchType.value === "projects" && result.matchedProject && (
                     <div style={{ marginTop: '20px', width: '100%' }}>
                       <div style={{ marginBottom: '20px' }}>
                         <h5 style={{color: 'white'}}>{result.matchedProject.title}</h5>
                         <p style={{color: 'grey'}}>{result.matchedProject.description}</p>
                         
-                        {/* Topics */}
                         {result.matchedProject.topics && result.matchedProject.topics.length > 0 && (
                           <div style={{marginTop: '10px'}}>
                             {result.matchedProject.topics.map((topic, index) => (
@@ -199,35 +211,7 @@ const Search = () => {
                           </div>
                         )}
 
-                        {/* Collaborators */}
-                        {result.matchedProject.collaborators && result.matchedProject.collaborators.length > 0 && (
-                          <div style={{ marginTop: '20px' }}>
-                            <h6 style={{color: 'black'}}>Collaborators:</h6>
-                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                              {result.matchedProject.collaborators.map((collaborator, idx) => (
-                                <div key={idx} style={{ 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  background: '#1a1a1a',
-                                  padding: '5px 10px',
-                                  borderRadius: '20px'
-                                }}>
-                                  <img
-                                    src={collaborator.profilePicture || 'default-profile-image-url'}
-                                    alt={collaborator.name}
-                                    style={{
-                                      width: '25px',
-                                      height: '25px',
-                                      borderRadius: '50%',
-                                      marginRight: '8px'
-                                    }}
-                                  />
-                                  <span style={{color: 'white'}}>{collaborator.name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                      
 
                         {/* Created Date */}
                         <small style={{ color: 'gray', display: 'block', marginTop: '20px' }}>
