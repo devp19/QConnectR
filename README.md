@@ -5,6 +5,8 @@
 
 **QonnectR** is a platform designed to simplify networking and project collaboration through QR code identification. It bridges the gap between the technical and non-technical communities, making it easier to find like-minded individuals and share ideas without the noise typically found on platforms like LinkedIn or GitHub.
 
+https://youtu.be/qOzf6vAZFF4
+
 ## What Are We Solving?
 
 We address the challenge of forgotten interactions, difficulty in finding collaborators, and the need for a simple, efficient way to connect using QR codes. Traditional networking platforms often feel cluttered, while GitHub is geared towards developers, making it less accessible to those outside the tech field. QonnectR provides an easy way to showcase ideas and collaborate with a simple QR code scan.
