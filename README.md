@@ -1,5 +1,5 @@
 
-<img width="1470" alt="Screenshot 2025-01-12 at 2 24 19 AM" src="https://github.com/user-attachments/assets/1989a9a0-5a73-4afa-8883-40b31375b4d4" />
+![QonnectR](https://github.com/user-attachments/assets/4cbc2913-55d4-4838-b470-0dea438e73f2)
 
 # QonnectR
 
