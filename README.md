@@ -29,7 +29,7 @@ While QR codes are ubiquitous in daily life (e.g., in ads, menus, and forms), ot
 
 ### Technical Challenges:
 - Integrating **Auth0** with an **Express server** for secure authentication.
-- Using the **Auth0 management API** to handle user sign-up on the backend instead of a pop-up.
+- Using the **Auth0 management API** to handle user sign-up on the backend to also generate user-attributes in our Firestore Database.
 - Configuring **AWS S3 bucket policies** for profile picture storage.
 - Integrating **Auth0 tokens** with **Firebase** for user attribute management.
 
